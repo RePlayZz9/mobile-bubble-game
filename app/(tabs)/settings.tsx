@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Volume2, VolumeX, Vibrate, Info, RefreshCw } from 'lucide-react-native';
+import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull } from 'lucide-react-native';
 import { useSettingsStore } from '@/hooks/useSettingsStore';
 
 export default function SettingsScreen() {
@@ -79,6 +79,7 @@ export default function SettingsScreen() {
                 ⚡ Different colored bubbles have different point values{'\n'}
                 🎮 You have 60 seconds to get the highest score{'\n'}
                 📈 Level up every 500 points for more challenge{'\n'}
+                💀 Avoid black skull bubbles after level 5 - they end the game!{'\n'}
                 🏆 Beat your high score and compete with yourself!
               </Text>
             </View>
@@ -103,6 +104,27 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#FFD700' }]} />
                 <Text style={styles.bubblePoints}>50 pts</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Danger Zone */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Danger Zone</Text>
+            <View style={styles.dangerCard}>
+              <View style={styles.dangerHeader}>
+                <Skull size={24} color="#ff4757" />
+                <Text style={styles.dangerTitle}>Black Skull Bubbles</Text>
+              </View>
+              <Text style={styles.dangerText}>
+                Starting at level 5, dangerous black bubbles with skulls will appear. 
+                Touching these will immediately end your game! Stay alert and avoid them at all costs.
+              </Text>
+              <View style={styles.skullPreview}>
+                <View style={styles.blackBubblePreview}>
+                  <Skull size={20} color="#ff4757" strokeWidth={2} />
+                </View>
+                <Text style={styles.dangerLabel}>GAME OVER!</Text>
               </View>
             </View>
           </View>
@@ -219,6 +241,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: 'white',
+  },
+  dangerCard: {
+    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 71, 87, 0.3)',
+  },
+  dangerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  dangerTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#ff4757',
+    marginLeft: 8,
+  },
+  dangerText: {
+    fontSize: 14,
+    color: 'white',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  skullPreview: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  blackBubblePreview: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#1a1a1a',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#ff4757',
+    marginRight: 12,
+  },
+  dangerLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ff4757',
   },
   resetButton: {
     flexDirection: 'row',

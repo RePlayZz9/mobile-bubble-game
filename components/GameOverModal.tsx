@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Trophy, RotateCcw, Chrome as Home } from 'lucide-react-native';
+import { Trophy, RotateCcw, Chrome as Home, Skull } from 'lucide-react-native';
 
 interface GameOverModalProps {
   visible: boolean;
   score: number;
   highScore: number;
+  reason: 'time' | 'blackBubble';
   onPlayAgain: () => void;
   onMenu: () => void;
 }
@@ -15,22 +16,44 @@ export function GameOverModal({
   visible, 
   score, 
   highScore, 
+  reason,
   onPlayAgain, 
   onMenu 
 }: GameOverModalProps) {
   const isNewHighScore = score === highScore && score > 0;
+  const isBlackBubbleGameOver = reason === 'blackBubble';
+
+  const getGameOverMessage = () => {
+    if (isBlackBubbleGameOver) {
+      return "You hit a skull bubble!";
+    }
+    return "Time's up!";
+  };
+
+  const getGameOverColors = () => {
+    if (isBlackBubbleGameOver) {
+      return ['#ff4757', '#ff3742'];
+    }
+    return ['#667eea', '#764ba2'];
+  };
 
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.modalContainer}>
           <LinearGradient
-            colors={['#667eea', '#764ba2']}
+            colors={getGameOverColors()}
             style={styles.modalGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {isNewHighScore && (
+            {isBlackBubbleGameOver && (
+              <View style={styles.skullContainer}>
+                <Skull size={40} color="white" strokeWidth={2.5} />
+              </View>
+            )}
+
+            {isNewHighScore && !isBlackBubbleGameOver && (
               <View style={styles.newHighScoreBadge}>
                 <Trophy size={20} color="#FFD700" />
                 <Text style={styles.newHighScoreText}>NEW HIGH SCORE!</Text>
@@ -38,6 +61,7 @@ export function GameOverModal({
             )}
 
             <Text style={styles.gameOverTitle}>Game Over</Text>
+            <Text style={styles.gameOverMessage}>{getGameOverMessage()}</Text>
             
             <View style={styles.scoreContainer}>
               <Text style={styles.scoreLabel}>Your Score</Text>
@@ -61,7 +85,7 @@ export function GameOverModal({
 
               <TouchableOpacity style={styles.menuButton} onPress={onMenu}>
                 <View style={styles.menuButtonContent}>
-                  <Home size={20} color="#667eea" />
+                  <Home size={20} color="white" />
                   <Text style={styles.menuButtonText}>Menu</Text>
                 </View>
               </TouchableOpacity>
@@ -95,6 +119,12 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: 'center',
   },
+  skullContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: 30,
+    padding: 12,
+    marginBottom: 16,
+  },
   newHighScoreBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -116,10 +146,16 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 24,
+    marginBottom: 8,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 4,
+  },
+  gameOverMessage: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginBottom: 24,
+    textAlign: 'center',
   },
   scoreContainer: {
     alignItems: 'center',

@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { GameEngine } from '@/components/GameEngine';
 import { GameOverModal } from '@/components/GameOverModal';
 import { GameHeader } from '@/components/GameHeader';
+import { LevelUpModal } from '@/components/LevelUpModal';
 import { useGameStore } from '@/hooks/useGameStore';
 
 const { width, height } = Dimensions.get('window');
@@ -15,6 +16,8 @@ export default function GameScreen() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [level, setLevel] = useState(1);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+  const [gameOverReason, setGameOverReason] = useState<'time' | 'blackBubble'>('time');
   const { addScore, getHighScore, getGamesPlayed } = useGameStore();
 
   const triggerHaptic = useCallback(() => {
@@ -28,11 +31,13 @@ export default function GameScreen() {
     setScore(0);
     setTimeLeft(60);
     setLevel(1);
+    setGameOverReason('time');
     triggerHaptic();
   };
 
-  const endGame = () => {
+  const endGame = (reason: 'time' | 'blackBubble' = 'time') => {
     setGameState('gameOver');
+    setGameOverReason(reason);
     addScore(score);
     triggerHaptic();
   };
@@ -42,11 +47,20 @@ export default function GameScreen() {
     setScore(0);
     setTimeLeft(60);
     setLevel(1);
+    setGameOverReason('time');
   };
 
   const onBubblePop = (points: number) => {
     setScore(prev => prev + points);
     triggerHaptic();
+  };
+
+  const onBlackBubblePop = () => {
+    // Strong haptic feedback for game over
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    }
+    endGame('blackBubble');
   };
 
   useEffect(() => {
@@ -55,7 +69,7 @@ export default function GameScreen() {
       interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
-            endGame();
+            endGame('time');
             return 0;
           }
           return prev - 1;
@@ -68,11 +82,21 @@ export default function GameScreen() {
   useEffect(() => {
     // Level up every 500 points
     const newLevel = Math.floor(score / 500) + 1;
-    if (newLevel > level) {
+    if (newLevel > level && gameState === 'playing') {
       setLevel(newLevel);
-      triggerHaptic();
+      setShowLevelUp(true);
+      
+      // Strong haptic feedback for level up
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+      
+      // Hide level up modal after 2 seconds
+      setTimeout(() => {
+        setShowLevelUp(false);
+      }, 2000);
     }
-  }, [score, level]);
+  }, [score, level, gameState]);
 
   if (gameState === 'menu') {
     return (
@@ -86,6 +110,7 @@ export default function GameScreen() {
           <View style={styles.menuContainer}>
             <Text style={styles.title}>Bubble Pop</Text>
             <Text style={styles.subtitle}>Tap the bubbles to pop them!</Text>
+            <Text style={styles.warningText}>⚠️ Avoid the black skulls after level 5!</Text>
             
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
@@ -133,14 +158,21 @@ export default function GameScreen() {
           gameState={gameState}
           level={level}
           onBubblePop={onBubblePop}
+          onBlackBubblePop={onBlackBubblePop}
           screenWidth={width}
           screenHeight={height - 200}
+        />
+
+        <LevelUpModal
+          visible={showLevelUp}
+          level={level}
         />
 
         <GameOverModal
           visible={gameState === 'gameOver'}
           score={score}
           highScore={getHighScore()}
+          reason={gameOverReason}
           onPlayAgain={startGame}
           onMenu={resetGame}
         />
@@ -176,7 +208,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
+    marginBottom: 8,
+  },
+  warningText: {
+    fontSize: 14,
+    color: '#ff4757',
+    textAlign: 'center',
     marginBottom: 48,
+    fontWeight: '600',
   },
   statsContainer: {
     flexDirection: 'row',
