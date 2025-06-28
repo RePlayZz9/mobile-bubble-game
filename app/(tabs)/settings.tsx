@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull, Timer, Zap } from 'lucide-react-native';
+import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull, Timer, Zap, Target } from 'lucide-react-native';
 import { useSettingsStore } from '@/hooks/useSettingsStore';
 
 export default function SettingsScreen() {
@@ -77,9 +77,25 @@ export default function SettingsScreen() {
               <Text style={styles.infoText}>
                 🎯 Tap bubbles to pop them and earn points{'\n'}
                 ⏰ Each bubble adds 1 second to your timer{'\n'}
+                🎪 Smaller bubbles = higher points (harder to hit!){'\n'}
                 🚀 Game speeds up after reaching 500 points{'\n'}
                 💀 Avoid black skull bubbles - they end the game!{'\n'}
                 🏆 Keep popping to extend your time and beat your high score!
+              </Text>
+            </View>
+          </View>
+
+          {/* Risk vs Reward */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Risk vs Reward</Text>
+            <View style={styles.riskCard}>
+              <View style={styles.riskHeader}>
+                <Target size={24} color="#FFD700" />
+                <Text style={styles.riskTitle}>Bubble Difficulty</Text>
+              </View>
+              <Text style={styles.riskDescription}>
+                Higher value bubbles are smaller and harder to hit, but give more points! 
+                Choose your strategy: go for easy points or risk it for the big scores.
               </Text>
             </View>
           </View>
@@ -103,26 +119,50 @@ export default function SettingsScreen() {
 
           {/* Bubble Values */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bubble Values</Text>
+            <Text style={styles.sectionTitle}>Bubble Values & Sizes</Text>
             <View style={styles.bubbleValues}>
               <View style={styles.bubbleValue}>
-                <View style={[styles.bubblePreview, { backgroundColor: '#FF6B9D' }]} />
+                <View style={[styles.bubblePreview, { 
+                  backgroundColor: '#FF6B9D',
+                  width: 48,
+                  height: 48,
+                  borderRadius: 24,
+                }]} />
                 <Text style={styles.bubblePoints}>10 pts</Text>
+                <Text style={styles.bubbleSize}>Large</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
-                <View style={[styles.bubblePreview, { backgroundColor: '#4ECDC4' }]} />
+                <View style={[styles.bubblePreview, { 
+                  backgroundColor: '#4ECDC4',
+                  width: 40,
+                  height: 40,
+                  borderRadius: 20,
+                }]} />
                 <Text style={styles.bubblePoints}>20 pts</Text>
+                <Text style={styles.bubbleSize}>Medium</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
-                <View style={[styles.bubblePreview, { backgroundColor: '#45B7D1' }]} />
+                <View style={[styles.bubblePreview, { 
+                  backgroundColor: '#45B7D1',
+                  width: 34,
+                  height: 34,
+                  borderRadius: 17,
+                }]} />
                 <Text style={styles.bubblePoints}>30 pts</Text>
+                <Text style={styles.bubbleSize}>Small</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
-                <View style={[styles.bubblePreview, { backgroundColor: '#FFD700' }]} />
+                <View style={[styles.bubblePreview, { 
+                  backgroundColor: '#FFD700',
+                  width: 28,
+                  height: 28,
+                  borderRadius: 14,
+                }]} />
                 <Text style={styles.bubblePoints}>50 pts</Text>
+                <Text style={styles.bubbleSize}>Tiny</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
             </View>
@@ -155,15 +195,16 @@ export default function SettingsScreen() {
             <View style={styles.strategyCard}>
               <View style={styles.strategyHeader}>
                 <Timer size={24} color="#4ECDC4" />
-                <Text style={styles.strategyTitle}>Time Management</Text>
+                <Text style={styles.strategyTitle}>Pro Tips</Text>
               </View>
               <Text style={styles.strategyText}>
-                • Pop bubbles quickly - they disappear fast!{'\n'}
+                • Start with large bubbles to build up time{'\n'}
+                • Go for small bubbles when you have time buffer{'\n'}
                 • Each bubble only gives 1 second - be efficient{'\n'}
-                • Higher value bubbles give the same time bonus{'\n'}
                 • In Speed Mode, prioritize survival over high scores{'\n'}
                 • Build up time before reaching 500 points{'\n'}
-                • Stay calm when skull bubbles appear
+                • Stay calm when skull bubbles appear{'\n'}
+                • Risk vs reward: small bubbles = big points!
               </Text>
             </View>
           </View>
@@ -255,6 +296,29 @@ const styles = StyleSheet.create({
     color: 'white',
     lineHeight: 22,
   },
+  riskCard: {
+    backgroundColor: 'rgba(255, 215, 0, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  riskHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  riskTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFD700',
+    marginLeft: 8,
+  },
+  riskDescription: {
+    fontSize: 14,
+    color: 'white',
+    lineHeight: 20,
+  },
   speedCard: {
     backgroundColor: 'rgba(255, 71, 87, 0.1)',
     borderRadius: 16,
@@ -292,9 +356,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bubblePreview: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
     marginBottom: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -306,6 +367,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: 'white',
+    marginBottom: 2,
+  },
+  bubbleSize: {
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.6)',
     marginBottom: 2,
   },
   bubbleTime: {
