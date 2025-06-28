@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Trophy, RotateCcw, Chrome as Home, Skull } from 'lucide-react-native';
+import { Trophy, RotateCcw, Chrome as Home, Skull, Clock, Target } from 'lucide-react-native';
 
 interface GameOverModalProps {
   visible: boolean;
   score: number;
   highScore: number;
-  reason: 'time' | 'blackBubble';
+  reason: 'time' | 'blackBubble' | 'levelFailed';
+  level: number;
+  requiredScore: number;
   onPlayAgain: () => void;
   onMenu: () => void;
 }
@@ -17,15 +19,20 @@ export function GameOverModal({
   score, 
   highScore, 
   reason,
+  level,
+  requiredScore,
   onPlayAgain, 
   onMenu 
 }: GameOverModalProps) {
   const isNewHighScore = score === highScore && score > 0;
   const isBlackBubbleGameOver = reason === 'blackBubble';
+  const isLevelFailed = reason === 'levelFailed';
 
   const getGameOverMessage = () => {
     if (isBlackBubbleGameOver) {
       return "You hit a skull bubble!";
+    } else if (isLevelFailed) {
+      return `Level ${level} failed! Needed ${requiredScore} points.`;
     }
     return "Time's up!";
   };
@@ -33,8 +40,27 @@ export function GameOverModal({
   const getGameOverColors = () => {
     if (isBlackBubbleGameOver) {
       return ['#ff4757', '#ff3742'];
+    } else if (isLevelFailed) {
+      return ['#ffa502', '#ff6348'];
     }
     return ['#667eea', '#764ba2'];
+  };
+
+  const getIcon = () => {
+    if (isBlackBubbleGameOver) {
+      return <Skull size={40} color="white" strokeWidth={2.5} />;
+    } else if (isLevelFailed) {
+      return <Target size={40} color="white" strokeWidth={2.5} />;
+    }
+    return <Clock size={40} color="white" strokeWidth={2.5} />;
+  };
+
+  const getScoreProgress = () => {
+    if (isLevelFailed) {
+      const progress = (score / requiredScore) * 100;
+      return Math.round(progress);
+    }
+    return null;
   };
 
   return (
@@ -47,13 +73,11 @@ export function GameOverModal({
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
           >
-            {isBlackBubbleGameOver && (
-              <View style={styles.skullContainer}>
-                <Skull size={40} color="white" strokeWidth={2.5} />
-              </View>
-            )}
+            <View style={styles.iconContainer}>
+              {getIcon()}
+            </View>
 
-            {isNewHighScore && !isBlackBubbleGameOver && (
+            {isNewHighScore && !isBlackBubbleGameOver && !isLevelFailed && (
               <View style={styles.newHighScoreBadge}>
                 <Trophy size={20} color="#FFD700" />
                 <Text style={styles.newHighScoreText}>NEW HIGH SCORE!</Text>
@@ -63,11 +87,31 @@ export function GameOverModal({
             <Text style={styles.gameOverTitle}>Game Over</Text>
             <Text style={styles.gameOverMessage}>{getGameOverMessage()}</Text>
             
+            {isLevelFailed && (
+              <View style={styles.progressInfo}>
+                <Text style={styles.progressText}>
+                  You scored {score} out of {requiredScore} required points
+                </Text>
+                <Text style={styles.progressPercentage}>
+                  ({getScoreProgress()}% complete)
+                </Text>
+              </View>
+            )}
+            
             <View style={styles.scoreContainer}>
-              <Text style={styles.scoreLabel}>Your Score</Text>
+              <Text style={styles.scoreLabel}>Final Score</Text>
               <Text style={styles.finalScore}>{score}</Text>
               
-              <Text style={styles.highScoreLabel}>High Score: {highScore}</Text>
+              <View style={styles.statsRow}>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>Level {level}</Text>
+                  <Text style={styles.statLabel}>Reached</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>{highScore}</Text>
+                  <Text style={styles.statLabel}>High Score</Text>
+                </View>
+              </View>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -119,8 +163,8 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: 'center',
   },
-  skullContainer: {
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  iconContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
     borderRadius: 30,
     padding: 12,
     marginBottom: 16,
@@ -154,8 +198,26 @@ const styles = StyleSheet.create({
   gameOverMessage: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 24,
+    marginBottom: 16,
     textAlign: 'center',
+  },
+  progressInfo: {
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  progressText: {
+    fontSize: 14,
+    color: 'white',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  progressPercentage: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '600',
   },
   scoreContainer: {
     alignItems: 'center',
@@ -175,9 +237,23 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 8,
   },
-  highScoreLabel: {
-    fontSize: 14,
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  statItem: {
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  statLabel: {
+    fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
+    marginTop: 2,
   },
   buttonContainer: {
     width: '100%',

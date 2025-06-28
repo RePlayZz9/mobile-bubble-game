@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Modal } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Trophy, Zap } from 'lucide-react-native';
+import { Trophy, Zap, Skull } from 'lucide-react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -41,22 +41,35 @@ export function LevelUpModal({ visible, level }: LevelUpModalProps) {
     if (level === 5) {
       return "Danger Zone! Black skulls appear!";
     } else if (level >= 10) {
-      return "Master Level! You're unstoppable!";
+      return `Master Level! Need ${400 + (level * 100)} points!`;
     } else if (level >= 7) {
-      return "Expert Level! Lightning fast!";
+      return `Expert Level! Need ${400 + (level * 100)} points!`;
     } else if (level >= 5) {
-      return "Advanced Level! Stay alert!";
+      return `Advanced Level! Need ${400 + (level * 100)} points!`;
     } else if (level >= 3) {
-      return "Getting faster! Keep going!";
+      return `Getting faster! Need ${400 + (level * 100)} points!`;
     }
-    return "Speed increasing! Nice work!";
+    return `Speed increasing! Need ${400 + (level * 100)} points!`;
   };
 
   const getIcon = () => {
-    if (level >= 5) {
+    if (level === 5) {
+      return <Skull size={32} color="#ff4757" />;
+    } else if (level >= 5) {
       return <Zap size={32} color="#FFD700" />;
     }
     return <Trophy size={32} color="#FFD700" />;
+  };
+
+  const getColors = () => {
+    if (level === 5) {
+      return ['#ff4757', '#ff3742'];
+    } else if (level >= 10) {
+      return ['#a55eea', '#8b5cf6'];
+    } else if (level >= 7) {
+      return ['#26de81', '#20bf6b'];
+    }
+    return ['#FFD700', '#FFA502'];
   };
 
   return (
@@ -64,7 +77,7 @@ export function LevelUpModal({ visible, level }: LevelUpModalProps) {
       <View style={styles.overlay}>
         <Animated.View style={[styles.modalContainer, animatedStyle]}>
           <LinearGradient
-            colors={level >= 5 ? ['#ff4757', '#ff3742'] : ['#FFD700', '#FFA502']}
+            colors={getColors()}
             style={styles.modalGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -72,6 +85,7 @@ export function LevelUpModal({ visible, level }: LevelUpModalProps) {
             {getIcon()}
             <Text style={styles.levelUpTitle}>Level {level}!</Text>
             <Text style={styles.levelUpMessage}>{getLevelMessage()}</Text>
+            <Text style={styles.timerText}>1 minute to reach target!</Text>
           </LinearGradient>
         </Animated.View>
       </View>
@@ -116,5 +130,12 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: '600',
+    marginBottom: 8,
+  },
+  timerText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
+    textAlign: 'center',
+    fontWeight: '500',
   },
 });

@@ -16,8 +16,9 @@ export default function GameScreen() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [level, setLevel] = useState(1);
+  const [levelTimeLeft, setLevelTimeLeft] = useState(60);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [gameOverReason, setGameOverReason] = useState<'time' | 'blackBubble'>('time');
+  const [gameOverReason, setGameOverReason] = useState<'time' | 'blackBubble' | 'levelFailed'>('time');
   const { addScore, getHighScore, getGamesPlayed } = useGameStore();
 
   const triggerHaptic = useCallback(() => {
@@ -26,16 +27,22 @@ export default function GameScreen() {
     }
   }, []);
 
+  // Calculate required score for current level
+  const getRequiredScore = (currentLevel: number) => {
+    return 400 + (currentLevel * 100); // Level 1: 500, Level 2: 600, Level 3: 700, etc.
+  };
+
   const startGame = () => {
     setGameState('playing');
     setScore(0);
     setTimeLeft(60);
     setLevel(1);
+    setLevelTimeLeft(60);
     setGameOverReason('time');
     triggerHaptic();
   };
 
-  const endGame = (reason: 'time' | 'blackBubble' = 'time') => {
+  const endGame = (reason: 'time' | 'blackBubble' | 'levelFailed' = 'time') => {
     setGameState('gameOver');
     setGameOverReason(reason);
     addScore(score);
@@ -47,6 +54,7 @@ export default function GameScreen() {
     setScore(0);
     setTimeLeft(60);
     setLevel(1);
+    setLevelTimeLeft(60);
     setGameOverReason('time');
   };
 
@@ -63,6 +71,7 @@ export default function GameScreen() {
     endGame('blackBubble');
   };
 
+  // Main game timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (gameState === 'playing' && timeLeft > 0) {
@@ -79,24 +88,44 @@ export default function GameScreen() {
     return () => clearInterval(interval);
   }, [gameState, timeLeft]);
 
+  // Level timer (1 minute per level)
   useEffect(() => {
-    // Level up every 500 points
-    const newLevel = Math.floor(score / 500) + 1;
-    if (newLevel > level && gameState === 'playing') {
-      setLevel(newLevel);
-      setShowLevelUp(true);
-      
-      // Strong haptic feedback for level up
-      if (Platform.OS !== 'web') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-      
-      // Hide level up modal after 2 seconds
-      setTimeout(() => {
-        setShowLevelUp(false);
-      }, 2000);
+    let interval: NodeJS.Timeout;
+    if (gameState === 'playing' && levelTimeLeft > 0) {
+      interval = setInterval(() => {
+        setLevelTimeLeft(prev => {
+          if (prev <= 1) {
+            // Check if player met the score requirement for this level
+            const requiredScore = getRequiredScore(level);
+            if (score >= requiredScore) {
+              // Level up!
+              setLevel(currentLevel => currentLevel + 1);
+              setLevelTimeLeft(60); // Reset level timer
+              setShowLevelUp(true);
+              
+              // Strong haptic feedback for level up
+              if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }
+              
+              // Hide level up modal after 2 seconds
+              setTimeout(() => {
+                setShowLevelUp(false);
+              }, 2000);
+              
+              return 60;
+            } else {
+              // Failed to meet score requirement
+              endGame('levelFailed');
+              return 0;
+            }
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
-  }, [score, level, gameState]);
+    return () => clearInterval(interval);
+  }, [gameState, levelTimeLeft, score, level]);
 
   if (gameState === 'menu') {
     return (
@@ -109,8 +138,17 @@ export default function GameScreen() {
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.menuContainer}>
             <Text style={styles.title}>Bubble Pop</Text>
-            <Text style={styles.subtitle}>Tap the bubbles to pop them!</Text>
+            <Text style={styles.subtitle}>Score-based level progression!</Text>
             <Text style={styles.warningText}>⚠️ Avoid the black skulls after level 5!</Text>
+            
+            <View style={styles.levelRequirements}>
+              <Text style={styles.requirementsTitle}>Level Requirements (1 min each):</Text>
+              <Text style={styles.requirementText}>Level 1: 500 points</Text>
+              <Text style={styles.requirementText}>Level 2: 600 points</Text>
+              <Text style={styles.requirementText}>Level 3: 700 points</Text>
+              <Text style={styles.requirementText}>Level 4: 800 points</Text>
+              <Text style={styles.requirementText}>Level 5+: +100 points each</Text>
+            </View>
             
             <View style={styles.statsContainer}>
               <View style={styles.statItem}>
@@ -151,6 +189,8 @@ export default function GameScreen() {
           score={score}
           timeLeft={timeLeft}
           level={level}
+          levelTimeLeft={levelTimeLeft}
+          requiredScore={getRequiredScore(level)}
           onPause={() => setGameState('paused')}
         />
         
@@ -173,6 +213,8 @@ export default function GameScreen() {
           score={score}
           highScore={getHighScore()}
           reason={gameOverReason}
+          level={level}
+          requiredScore={getRequiredScore(level)}
           onPlayAgain={startGame}
           onMenu={resetGame}
         />
@@ -214,8 +256,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#ff4757',
     textAlign: 'center',
-    marginBottom: 48,
+    marginBottom: 24,
     fontWeight: '600',
+  },
+  levelRequirements: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  requirementsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: 12,
+  },
+  requirementText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 4,
   },
   statsContainer: {
     flexDirection: 'row',

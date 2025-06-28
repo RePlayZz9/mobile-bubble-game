@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull } from 'lucide-react-native';
+import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull, Timer, Target } from 'lucide-react-native';
 import { useSettingsStore } from '@/hooks/useSettingsStore';
 
 export default function SettingsScreen() {
@@ -70,18 +70,35 @@ export default function SettingsScreen() {
             </View>
           </View>
 
-          {/* Game Info */}
+          {/* Game Rules */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>How to Play</Text>
             <View style={styles.infoCard}>
               <Text style={styles.infoText}>
                 🎯 Tap bubbles to pop them and earn points{'\n'}
-                ⚡ Different colored bubbles have different point values{'\n'}
-                🎮 You have 60 seconds to get the highest score{'\n'}
-                📈 Level up every 500 points for more challenge{'\n'}
+                ⏱️ Each level lasts 1 minute{'\n'}
+                📈 Meet score requirements to advance levels{'\n'}
                 💀 Avoid black skull bubbles after level 5 - they end the game!{'\n'}
                 🏆 Beat your high score and compete with yourself!
               </Text>
+            </View>
+          </View>
+
+          {/* Level Requirements */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Level Requirements</Text>
+            <View style={styles.levelCard}>
+              <View style={styles.levelHeader}>
+                <Timer size={24} color="#4ECDC4" />
+                <Text style={styles.levelTitle}>Score Targets (1 min each)</Text>
+              </View>
+              <View style={styles.levelList}>
+                <Text style={styles.levelText}>Level 1: 500 points</Text>
+                <Text style={styles.levelText}>Level 2: 600 points</Text>
+                <Text style={styles.levelText}>Level 3: 700 points</Text>
+                <Text style={styles.levelText}>Level 4: 800 points</Text>
+                <Text style={styles.levelText}>Level 5+: +100 points each</Text>
+              </View>
             </View>
           </View>
 
@@ -215,6 +232,30 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
     lineHeight: 22,
+  },
+  levelCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+  },
+  levelHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  levelTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+    marginLeft: 8,
+  },
+  levelList: {
+    gap: 8,
+  },
+  levelText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500',
   },
   bubbleValues: {
     flexDirection: 'row',
