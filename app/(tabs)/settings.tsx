@@ -76,7 +76,7 @@ export default function SettingsScreen() {
             <View style={styles.infoCard}>
               <Text style={styles.infoText}>
                 🎯 Tap bubbles to pop them and earn points{'\n'}
-                ⏰ Each bubble adds 4 seconds to your timer{'\n'}
+                ⏰ Each bubble adds 1 second to your timer{'\n'}
                 🚀 Game speeds up after reaching 500 points{'\n'}
                 💀 Avoid black skull bubbles - they end the game!{'\n'}
                 🏆 Keep popping to extend your time and beat your high score!
@@ -94,7 +94,7 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.speedList}>
                 <Text style={styles.speedText}>⚡ Bubbles appear much faster</Text>
-                <Text style={styles.speedText}>⏱️ Bubbles disappear quicker</Text>
+                <Text style={styles.speedText}>⏱️ Bubbles disappear very quickly</Text>
                 <Text style={styles.speedText}>💀 Black skull bubbles start appearing</Text>
                 <Text style={styles.speedText}>🎯 More bubbles on screen at once</Text>
               </View>
@@ -108,22 +108,22 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#FF6B9D' }]} />
                 <Text style={styles.bubblePoints}>10 pts</Text>
-                <Text style={styles.bubbleTime}>+4s</Text>
+                <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#4ECDC4' }]} />
                 <Text style={styles.bubblePoints}>20 pts</Text>
-                <Text style={styles.bubbleTime}>+4s</Text>
+                <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#45B7D1' }]} />
                 <Text style={styles.bubblePoints}>30 pts</Text>
-                <Text style={styles.bubbleTime}>+4s</Text>
+                <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#FFD700' }]} />
                 <Text style={styles.bubblePoints}>50 pts</Text>
-                <Text style={styles.bubbleTime}>+4s</Text>
+                <Text style={styles.bubbleTime}>+1s</Text>
               </View>
             </View>
           </View>
@@ -138,7 +138,7 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.dangerText}>
                 In Speed Mode (500+ points), dangerous black bubbles with skulls will appear. 
-                Touching these will immediately end your game! Stay alert and avoid them at all costs.
+                Touching these will immediately end your game! They disappear very quickly, so stay alert.
               </Text>
               <View style={styles.skullPreview}>
                 <View style={styles.blackBubblePreview}>
@@ -158,7 +158,8 @@ export default function SettingsScreen() {
                 <Text style={styles.strategyTitle}>Time Management</Text>
               </View>
               <Text style={styles.strategyText}>
-                • Pop bubbles quickly to build up time reserves{'\n'}
+                • Pop bubbles quickly - they disappear fast!{'\n'}
+                • Each bubble only gives 1 second - be efficient{'\n'}
                 • Higher value bubbles give the same time bonus{'\n'}
                 • In Speed Mode, prioritize survival over high scores{'\n'}
                 • Build up time before reaching 500 points{'\n'}

@@ -11,6 +11,7 @@ interface BubbleData {
   points: number;
   size: number;
   type: 'normal' | 'black';
+  createdAt: number;
 }
 
 interface GameEngineProps {
@@ -57,6 +58,7 @@ export function GameEngine({
         points: 0,
         size: size,
         type: 'black',
+        createdAt: Date.now(),
       };
     }
     
@@ -69,6 +71,7 @@ export function GameEngine({
       points: colorData.points,
       size: size,
       type: 'normal',
+      createdAt: Date.now(),
     };
   }, [screenWidth, screenHeight, isSpeedMode]);
 
@@ -105,27 +108,22 @@ export function GameEngine({
     return () => clearInterval(interval);
   }, [gameState, isSpeedMode, generateBubble]);
 
-  // Auto-remove bubbles with speed-based timing
+  // Auto-remove bubbles with much faster timing
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Speed mode: bubbles disappear faster
-    const bubbleLifetime = isSpeedMode ? 2500 : 4000; // Much shorter in speed mode
+    // Much faster bubble disappearance
+    const bubbleLifetime = isSpeedMode ? 1200 : 2000; // Very short lifetime
 
     const cleanupInterval = setInterval(() => {
       setBubbles(prev => {
-        // Remove bubbles that have been around too long
         const now = Date.now();
-        return prev.filter((bubble, index) => {
-          // Remove oldest bubbles first if there are too many
-          const maxBubblesBeforeCleanup = isSpeedMode ? 6 : 8;
-          if (prev.length > maxBubblesBeforeCleanup && index === 0) {
-            return false;
-          }
-          return true;
+        return prev.filter(bubble => {
+          // Remove bubbles that have exceeded their lifetime
+          return (now - bubble.createdAt) < bubbleLifetime;
         });
       });
-    }, bubbleLifetime / 4); // Check more frequently
+    }, 200); // Check every 200ms for precise timing
 
     return () => clearInterval(cleanupInterval);
   }, [gameState, isSpeedMode]);

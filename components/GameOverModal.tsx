@@ -91,7 +91,7 @@ export function GameOverModal({
                   <Text style={styles.statLabel}>High Score</Text>
                 </View>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>+4s</Text>
+                  <Text style={styles.statValue}>+1s</Text>
                   <Text style={styles.statLabel}>Per Bubble</Text>
                 </View>
               </View>

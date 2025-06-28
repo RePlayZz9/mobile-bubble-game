@@ -47,8 +47,8 @@ export default function GameScreen() {
 
   const onBubblePop = (points: number) => {
     setScore(prev => prev + points);
-    // Add 4 seconds for each bubble popped
-    setTimeLeft(prev => prev + 4);
+    // Add only 1 second for each bubble popped
+    setTimeLeft(prev => prev + 1);
     triggerHaptic();
   };
 
@@ -93,7 +93,7 @@ export default function GameScreen() {
             <View style={styles.rulesContainer}>
               <Text style={styles.rulesTitle}>How to Play:</Text>
               <Text style={styles.ruleText}>🎯 Pop bubbles to earn points</Text>
-              <Text style={styles.ruleText}>⏰ Each bubble adds 4 seconds</Text>
+              <Text style={styles.ruleText}>⏰ Each bubble adds 1 second</Text>
               <Text style={styles.ruleText}>🚀 Game speeds up after 500 points</Text>
               <Text style={styles.ruleText}>💀 Avoid black skulls - they end the game!</Text>
             </View>

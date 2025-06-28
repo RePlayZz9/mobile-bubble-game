@@ -21,6 +21,7 @@ interface BubbleData {
   points: number;
   size: number;
   type: 'normal' | 'black';
+  createdAt: number;
 }
 
 interface BlackBubbleProps {
@@ -38,17 +39,17 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
   const pulseScale = useSharedValue(1);
 
   useEffect(() => {
-    // Entrance animation - faster in speed mode
+    // Entrance animation - much faster
     const springConfig = isSpeedMode 
-      ? { damping: 12, stiffness: 150 }
-      : { damping: 8, stiffness: 100 };
+      ? { damping: 15, stiffness: 200 }
+      : { damping: 12, stiffness: 150 };
     
     scale.value = withSpring(1, springConfig);
 
-    // Menacing floating animation - more aggressive in speed mode
+    // Faster menacing floating animation
     const startFloating = () => {
-      const floatDistance = isSpeedMode ? 20 : 15;
-      const floatDuration = isSpeedMode ? 800 : 1500;
+      const floatDistance = isSpeedMode ? 12 : 10;
+      const floatDuration = isSpeedMode ? 500 : 800;
       
       translateY.value = withSequence(
         withTiming(-floatDistance, { duration: floatDuration }),
@@ -57,9 +58,9 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       );
     };
 
-    // Pulsing effect - faster and more intense in speed mode
-    const pulseDuration = isSpeedMode ? 400 : 800;
-    const pulseIntensity = isSpeedMode ? 1.2 : 1.1;
+    // Much faster and more intense pulsing
+    const pulseDuration = isSpeedMode ? 250 : 400;
+    const pulseIntensity = isSpeedMode ? 1.25 : 1.15;
     
     pulseScale.value = withRepeat(
       withSequence(
@@ -70,11 +71,18 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       true
     );
 
-    const timer = setTimeout(startFloating, Math.random() * 500);
-    const floatingInterval = setInterval(startFloating, isSpeedMode ? 2500 : 4500);
+    const timer = setTimeout(startFloating, Math.random() * 300);
+    const floatingInterval = setInterval(startFloating, isSpeedMode ? 1500 : 2500);
+
+    // Auto-fade effect for faster disappearance
+    const fadeDelay = isSpeedMode ? 800 : 1500; // Start fading much earlier
+    const fadeTimer = setTimeout(() => {
+      opacity.value = withTiming(0, { duration: isSpeedMode ? 400 : 500 });
+    }, fadeDelay);
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(fadeTimer);
       clearInterval(floatingInterval);
     };
   }, [isSpeedMode]);
@@ -85,12 +93,12 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     }
 
-    // Dramatic pop animation - faster in speed mode
-    const popDuration = isSpeedMode ? 150 : 200;
-    const fadeDuration = isSpeedMode ? 300 : 500;
+    // Very fast dramatic pop animation
+    const popDuration = isSpeedMode ? 100 : 150;
+    const fadeDuration = isSpeedMode ? 200 : 300;
     
     scale.value = withSequence(
-      withTiming(1.5, { duration: popDuration }),
+      withTiming(1.4, { duration: popDuration }),
       withTiming(0, { duration: fadeDuration - popDuration }),
     );
     

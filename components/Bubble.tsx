@@ -18,6 +18,7 @@ interface BubbleData {
   color: string;
   points: number;
   size: number;
+  createdAt: number;
 }
 
 interface BubbleProps {
@@ -34,17 +35,17 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
   const translateY = useSharedValue(0);
 
   useEffect(() => {
-    // Entrance animation - faster in speed mode
+    // Entrance animation - much faster
     const springConfig = isSpeedMode 
-      ? { damping: 12, stiffness: 150 }
-      : { damping: 8, stiffness: 100 };
+      ? { damping: 15, stiffness: 200 }
+      : { damping: 12, stiffness: 150 };
     
     scale.value = withSpring(1, springConfig);
 
-    // Floating animation - more frantic in speed mode
+    // Faster floating animation
     const startFloating = () => {
-      const floatDistance = isSpeedMode ? 15 : 10;
-      const floatDuration = isSpeedMode ? 1000 : 2000;
+      const floatDistance = isSpeedMode ? 8 : 6;
+      const floatDuration = isSpeedMode ? 600 : 1000;
       
       translateY.value = withSequence(
         withTiming(-floatDistance, { duration: floatDuration }),
@@ -53,11 +54,18 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
       );
     };
 
-    const timer = setTimeout(startFloating, Math.random() * 500);
-    const floatingInterval = setInterval(startFloating, isSpeedMode ? 3000 : 6000);
+    const timer = setTimeout(startFloating, Math.random() * 300);
+    const floatingInterval = setInterval(startFloating, isSpeedMode ? 1800 : 3000);
+
+    // Auto-fade effect for faster disappearance
+    const fadeDelay = isSpeedMode ? 800 : 1500; // Start fading much earlier
+    const fadeTimer = setTimeout(() => {
+      opacity.value = withTiming(0, { duration: isSpeedMode ? 400 : 500 });
+    }, fadeDelay);
 
     return () => {
       clearTimeout(timer);
+      clearTimeout(fadeTimer);
       clearInterval(floatingInterval);
     };
   }, [isSpeedMode]);
@@ -68,12 +76,12 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    // Pop animation - faster in speed mode
-    const popDuration = isSpeedMode ? 100 : 150;
-    const fadeDuration = isSpeedMode ? 200 : 350;
+    // Very fast pop animation
+    const popDuration = isSpeedMode ? 80 : 100;
+    const fadeDuration = isSpeedMode ? 150 : 200;
     
     scale.value = withSequence(
-      withTiming(1.3, { duration: popDuration }),
+      withTiming(1.2, { duration: popDuration }),
       withTiming(0, { duration: fadeDuration - popDuration }),
     );
     
