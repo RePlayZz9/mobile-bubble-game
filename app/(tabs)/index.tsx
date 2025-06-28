@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { GameEngine } from '@/components/GameEngine';
 import { GameOverModal } from '@/components/GameOverModal';
+import { PauseModal } from '@/components/PauseModal';
 import { GameHeader } from '@/components/GameHeader';
 import { useGameStore } from '@/hooks/useGameStore';
 
@@ -28,6 +29,16 @@ export default function GameScreen() {
     setScore(0);
     setTimeLeft(60);
     setGameOverReason('time');
+    triggerHaptic();
+  };
+
+  const pauseGame = () => {
+    setGameState('paused');
+    triggerHaptic();
+  };
+
+  const resumeGame = () => {
+    setGameState('playing');
     triggerHaptic();
   };
 
@@ -159,7 +170,7 @@ export default function GameScreen() {
         <GameHeader 
           score={score}
           timeLeft={timeLeft}
-          onPause={() => setGameState('paused')}
+          onPause={pauseGame}
         />
         
         <GameEngine
@@ -169,6 +180,15 @@ export default function GameScreen() {
           onBlackBubblePop={onBlackBubblePop}
           screenWidth={width}
           screenHeight={height - 200}
+        />
+
+        <PauseModal
+          visible={gameState === 'paused'}
+          score={score}
+          timeLeft={timeLeft}
+          speedLevel={speedLevel}
+          onResume={resumeGame}
+          onMainMenu={resetGame}
         />
 
         <GameOverModal
