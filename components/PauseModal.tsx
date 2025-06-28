@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Play, Home, Pause, Clock, Star, Zap } from 'lucide-react-native';
+import { Play, Chrome as Home, Pause, Clock, Star, Zap } from 'lucide-react-native';
 
 interface PauseModalProps {
   visible: boolean;
