@@ -77,7 +77,7 @@ export default function SettingsScreen() {
               <Text style={styles.infoText}>
                 🎯 Tap bubbles to pop them and earn points{'\n'}
                 ⏰ Each bubble adds 1 second to your timer{'\n'}
-                🎪 Smaller bubbles = higher points (harder to hit!){'\n'}
+                🎪 Smaller bubbles = higher points (much harder to hit!){'\n'}
                 🚀 Game speeds up after reaching 500 points{'\n'}
                 💀 Avoid black skull bubbles - they end the game!{'\n'}
                 🏆 Keep popping to extend your time and beat your high score!
@@ -91,11 +91,11 @@ export default function SettingsScreen() {
             <View style={styles.riskCard}>
               <View style={styles.riskHeader}>
                 <Target size={24} color="#FFD700" />
-                <Text style={styles.riskTitle}>Bubble Difficulty</Text>
+                <Text style={styles.riskTitle}>Precision Challenge</Text>
               </View>
               <Text style={styles.riskDescription}>
-                Higher value bubbles are smaller and harder to hit, but give more points! 
-                Choose your strategy: go for easy points or risk it for the big scores.
+                All bubbles are now much smaller! Higher value bubbles are extremely tiny and require 
+                precise aim. Master your accuracy to achieve high scores in this challenging precision game.
               </Text>
             </View>
           </View>
@@ -113,6 +113,7 @@ export default function SettingsScreen() {
                 <Text style={styles.speedText}>⏱️ Bubbles disappear very quickly</Text>
                 <Text style={styles.speedText}>💀 Black skull bubbles start appearing</Text>
                 <Text style={styles.speedText}>🎯 More bubbles on screen at once</Text>
+                <Text style={styles.speedText}>🔥 Ultimate precision test!</Text>
               </View>
             </View>
           </View>
@@ -124,9 +125,9 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
                   backgroundColor: '#FF6B9D',
-                  width: 48,
-                  height: 48,
-                  borderRadius: 24,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 18,
                 }]} />
                 <Text style={styles.bubblePoints}>10 pts</Text>
                 <Text style={styles.bubbleSize}>Large</Text>
@@ -135,9 +136,9 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
                   backgroundColor: '#4ECDC4',
-                  width: 40,
-                  height: 40,
-                  borderRadius: 20,
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
                 }]} />
                 <Text style={styles.bubblePoints}>20 pts</Text>
                 <Text style={styles.bubbleSize}>Medium</Text>
@@ -146,9 +147,9 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
                   backgroundColor: '#45B7D1',
-                  width: 34,
-                  height: 34,
-                  borderRadius: 17,
+                  width: 26,
+                  height: 26,
+                  borderRadius: 13,
                 }]} />
                 <Text style={styles.bubblePoints}>30 pts</Text>
                 <Text style={styles.bubbleSize}>Small</Text>
@@ -157,15 +158,18 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
                   backgroundColor: '#FFD700',
-                  width: 28,
-                  height: 28,
-                  borderRadius: 14,
+                  width: 21,
+                  height: 21,
+                  borderRadius: 10.5,
                 }]} />
                 <Text style={styles.bubblePoints}>50 pts</Text>
                 <Text style={styles.bubbleSize}>Tiny</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
             </View>
+            <Text style={styles.difficultyNote}>
+              ⚠️ All bubbles are now much smaller - precision is key!
+            </Text>
           </View>
 
           {/* Danger Zone */}
@@ -178,33 +182,33 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.dangerText}>
                 In Speed Mode (500+ points), dangerous black bubbles with skulls will appear. 
-                Touching these will immediately end your game! They disappear very quickly, so stay alert.
+                Touching these will immediately end your game! They're also smaller and disappear very quickly.
               </Text>
               <View style={styles.skullPreview}>
                 <View style={styles.blackBubblePreview}>
-                  <Skull size={20} color="#ff4757" strokeWidth={2} />
+                  <Skull size={16} color="#ff4757" strokeWidth={2} />
                 </View>
                 <Text style={styles.dangerLabel}>GAME OVER!</Text>
               </View>
             </View>
           </View>
 
-          {/* Time Strategy */}
+          {/* Strategy Tips */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Strategy Tips</Text>
             <View style={styles.strategyCard}>
               <View style={styles.strategyHeader}>
                 <Timer size={24} color="#4ECDC4" />
-                <Text style={styles.strategyTitle}>Pro Tips</Text>
+                <Text style={styles.strategyTitle}>Precision Pro Tips</Text>
               </View>
               <Text style={styles.strategyText}>
-                • Start with large bubbles to build up time{'\n'}
-                • Go for small bubbles when you have time buffer{'\n'}
-                • Each bubble only gives 1 second - be efficient{'\n'}
-                • In Speed Mode, prioritize survival over high scores{'\n'}
-                • Build up time before reaching 500 points{'\n'}
-                • Stay calm when skull bubbles appear{'\n'}
-                • Risk vs reward: small bubbles = big points!
+                • Practice your aim - all bubbles are much smaller now{'\n'}
+                • Start with pink bubbles to build confidence{'\n'}
+                • Gold bubbles are extremely tiny - only attempt when ready{'\n'}
+                • Use both thumbs for better coverage{'\n'}
+                • Stay calm under pressure in Speed Mode{'\n'}
+                • Build up time before attempting risky small bubbles{'\n'}
+                • Every tap counts - make them precise!
               </Text>
             </View>
           </View>
@@ -351,6 +355,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
     padding: 20,
+    marginBottom: 12,
   },
   bubbleValue: {
     alignItems: 'center',
@@ -377,6 +382,17 @@ const styles = StyleSheet.create({
   bubbleTime: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.7)',
+  },
+  difficultyNote: {
+    fontSize: 12,
+    color: '#ff4757',
+    textAlign: 'center',
+    fontWeight: '600',
+    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 71, 87, 0.3)',
   },
   dangerCard: {
     backgroundColor: 'rgba(255, 71, 87, 0.1)',
@@ -408,9 +424,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   blackBubblePreview: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: '#1a1a1a',
     justifyContent: 'center',
     alignItems: 'center',

@@ -24,10 +24,10 @@ interface GameEngineProps {
 }
 
 const BUBBLE_COLORS = [
-  { color: '#FF6B9D', points: 10, baseSize: 60 },  // Largest - easiest to hit
-  { color: '#4ECDC4', points: 20, baseSize: 50 },  // Medium-large
-  { color: '#45B7D1', points: 30, baseSize: 42 },  // Medium-small
-  { color: '#FFD700', points: 50, baseSize: 35 },  // Smallest - hardest to hit
+  { color: '#FF6B9D', points: 10, baseSize: 45 },  // Reduced from 60 to 45
+  { color: '#4ECDC4', points: 20, baseSize: 38 },  // Reduced from 50 to 38
+  { color: '#45B7D1', points: 30, baseSize: 32 },  // Reduced from 42 to 32
+  { color: '#FFD700', points: 50, baseSize: 26 },  // Reduced from 35 to 26
 ];
 
 export function GameEngine({ 
@@ -48,8 +48,8 @@ export function GameEngine({
     const shouldCreateBlackBubble = isSpeedMode && Math.random() < 0.2; // 20% chance in speed mode
     
     if (shouldCreateBlackBubble) {
-      // Black bubbles use medium size for balance
-      const size = 45 + Math.random() * 10; // Size between 45-55
+      // Black bubbles use smaller medium size for balance
+      const size = 35 + Math.random() * 8; // Size between 35-43 (reduced from 45-55)
       return {
         id: Math.random().toString(36).substr(2, 9),
         x: Math.random() * (screenWidth - size),
@@ -66,8 +66,8 @@ export function GameEngine({
     
     // Size based on point value - higher points = smaller size
     // Add small random variation to base size
-    const sizeVariation = Math.random() * 8 - 4; // ±4 pixels variation
-    const size = Math.max(colorData.baseSize + sizeVariation, 25); // Minimum size of 25
+    const sizeVariation = Math.random() * 6 - 3; // ±3 pixels variation (reduced from ±4)
+    const size = Math.max(colorData.baseSize + sizeVariation, 20); // Minimum size of 20 (reduced from 25)
     
     return {
       id: Math.random().toString(36).substr(2, 9),
