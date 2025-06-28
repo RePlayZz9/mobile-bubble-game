@@ -27,29 +27,30 @@ interface BubbleData {
 interface BlackBubbleProps {
   bubble: BubbleData;
   onPop: (bubble: BubbleData) => void;
-  isSpeedMode?: boolean;
+  speedLevel?: number;
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleProps) {
+export function BlackBubble({ bubble, onPop, speedLevel = 0 }: BlackBubbleProps) {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(1);
   const translateY = useSharedValue(0);
   const pulseScale = useSharedValue(1);
 
   useEffect(() => {
-    // Entrance animation - much faster
-    const springConfig = isSpeedMode 
-      ? { damping: 15, stiffness: 200 }
-      : { damping: 12, stiffness: 150 };
+    // Entrance animation - gets much faster with speed level
+    const springConfig = {
+      damping: Math.min(10 + speedLevel * 3, 25),
+      stiffness: Math.min(150 + speedLevel * 30, 300)
+    };
     
     scale.value = withSpring(1, springConfig);
 
-    // Faster menacing floating animation
+    // Faster and more aggressive floating at higher speed levels
     const startFloating = () => {
-      const floatDistance = isSpeedMode ? 12 : 10;
-      const floatDuration = isSpeedMode ? 500 : 800;
+      const floatDistance = Math.min(10 + speedLevel * 2, 20);
+      const floatDuration = Math.max(800 - speedLevel * 100, 300);
       
       translateY.value = withSequence(
         withTiming(-floatDistance, { duration: floatDuration }),
@@ -58,9 +59,9 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       );
     };
 
-    // Much faster and more intense pulsing
-    const pulseDuration = isSpeedMode ? 250 : 400;
-    const pulseIntensity = isSpeedMode ? 1.25 : 1.15;
+    // Much faster and more intense pulsing at higher speed levels
+    const pulseDuration = Math.max(400 - speedLevel * 50, 150);
+    const pulseIntensity = Math.min(1.15 + speedLevel * 0.05, 1.4);
     
     pulseScale.value = withRepeat(
       withSequence(
@@ -71,13 +72,13 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       true
     );
 
-    const timer = setTimeout(startFloating, Math.random() * 300);
-    const floatingInterval = setInterval(startFloating, isSpeedMode ? 1500 : 2500);
+    const timer = setTimeout(startFloating, Math.random() * 200);
+    const floatingInterval = setInterval(startFloating, Math.max(2500 - speedLevel * 300, 800));
 
-    // Auto-fade effect for faster disappearance
-    const fadeDelay = isSpeedMode ? 800 : 1500; // Start fading much earlier
+    // Progressive auto-fade - gets extremely fast at higher speed levels
+    const fadeDelay = Math.max(1500 - speedLevel * 250, 500);
     const fadeTimer = setTimeout(() => {
-      opacity.value = withTiming(0, { duration: isSpeedMode ? 400 : 500 });
+      opacity.value = withTiming(0, { duration: Math.max(500 - speedLevel * 60, 150) });
     }, fadeDelay);
 
     return () => {
@@ -85,7 +86,7 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       clearTimeout(fadeTimer);
       clearInterval(floatingInterval);
     };
-  }, [isSpeedMode]);
+  }, [speedLevel]);
 
   const handlePress = () => {
     // Strong haptic feedback for danger
@@ -93,9 +94,9 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     }
 
-    // Very fast dramatic pop animation
-    const popDuration = isSpeedMode ? 100 : 150;
-    const fadeDuration = isSpeedMode ? 200 : 300;
+    // Very fast dramatic pop animation at higher speed levels
+    const popDuration = Math.max(150 - speedLevel * 15, 75);
+    const fadeDuration = Math.max(300 - speedLevel * 30, 150);
     
     scale.value = withSequence(
       withTiming(1.4, { duration: popDuration }),
@@ -118,6 +119,21 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
     opacity: opacity.value,
   }));
 
+  const getSpeedGlowIntensity = () => {
+    if (speedLevel === 0) return { borderWidth: 2, borderColor: 'rgba(255, 71, 87, 0.3)' };
+    
+    // Progressive glow intensity
+    const borderWidth = Math.min(2 + speedLevel * 0.5, 4);
+    const opacity = Math.min(0.3 + speedLevel * 0.1, 0.8);
+    
+    return {
+      borderWidth,
+      borderColor: `rgba(255, 71, 87, ${opacity})`,
+    };
+  };
+
+  const glowStyle = getSpeedGlowIntensity();
+
   return (
     <AnimatedTouchableOpacity
       style={[
@@ -130,7 +146,11 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
           borderRadius: bubble.size / 2,
         },
         animatedStyle,
-        isSpeedMode && styles.speedModeBlackBubble,
+        speedLevel > 0 && {
+          ...styles.speedModeBlackBubble,
+          shadowRadius: Math.min(12 + speedLevel * 2, 20),
+          elevation: Math.min(12 + speedLevel * 2, 20),
+        },
       ]}
       onPress={handlePress}
       activeOpacity={0.8}
@@ -169,18 +189,18 @@ export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleP
         ]}
       />
       
-      {/* Red glow border - more intense in speed mode */}
+      {/* Progressive red glow border */}
       <Animated.View
         style={[
           styles.glowBorder,
           {
-            width: bubble.size + (isSpeedMode ? 8 : 4),
-            height: bubble.size + (isSpeedMode ? 8 : 4),
-            borderRadius: (bubble.size + (isSpeedMode ? 8 : 4)) / 2,
-            top: isSpeedMode ? -4 : -2,
-            left: isSpeedMode ? -4 : -2,
+            width: bubble.size + (4 + speedLevel * 2),
+            height: bubble.size + (4 + speedLevel * 2),
+            borderRadius: (bubble.size + (4 + speedLevel * 2)) / 2,
+            top: -(2 + speedLevel),
+            left: -(2 + speedLevel),
+            ...glowStyle,
           },
-          isSpeedMode && styles.speedModeGlow,
         ]}
       />
     </AnimatedTouchableOpacity>
@@ -201,8 +221,6 @@ const styles = StyleSheet.create({
   },
   speedModeBlackBubble: {
     shadowOpacity: 0.8,
-    shadowRadius: 16,
-    elevation: 16,
   },
   bubbleGradient: {
     justifyContent: 'center',
@@ -216,11 +234,5 @@ const styles = StyleSheet.create({
   },
   glowBorder: {
     position: 'absolute',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 71, 87, 0.3)',
-  },
-  speedModeGlow: {
-    borderWidth: 2,
-    borderColor: 'rgba(255, 71, 87, 0.6)',
   },
 });

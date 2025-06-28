@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Pause, Clock, Star } from 'lucide-react-native';
+import { Pause, Clock, Star, Zap } from 'lucide-react-native';
 
 interface GameHeaderProps {
   score: number;
@@ -21,22 +21,52 @@ export function GameHeader({ score, timeLeft, onPause }: GameHeaderProps) {
     return 'white';
   };
 
+  const getSpeedLevel = () => Math.floor(score / 500);
+  const speedLevel = getSpeedLevel();
+
   const getSpeedIndicator = () => {
-    if (score >= 500) {
+    if (speedLevel === 0) {
+      return {
+        text: 'NORMAL',
+        color: '#4ECDC4',
+        icon: '🎯'
+      };
+    } else if (speedLevel === 1) {
       return {
         text: 'SPEED MODE',
         color: '#ff4757',
         icon: '🚀'
       };
+    } else if (speedLevel === 2) {
+      return {
+        text: 'TURBO MODE',
+        color: '#ff6b35',
+        icon: '⚡'
+      };
+    } else if (speedLevel === 3) {
+      return {
+        text: 'HYPER MODE',
+        color: '#ff9500',
+        icon: '💥'
+      };
+    } else if (speedLevel === 4) {
+      return {
+        text: 'ULTRA MODE',
+        color: '#ffcc00',
+        icon: '🔥'
+      };
+    } else {
+      return {
+        text: `INSANE x${speedLevel}`,
+        color: '#ff0080',
+        icon: '💀'
+      };
     }
-    return {
-      text: 'NORMAL',
-      color: '#4ECDC4',
-      icon: '🎯'
-    };
   };
 
   const speedInfo = getSpeedIndicator();
+  const nextMilestone = (speedLevel + 1) * 500;
+  const pointsToNext = nextMilestone - score;
 
   return (
     <View style={styles.container}>
@@ -70,11 +100,20 @@ export function GameHeader({ score, timeLeft, onPause }: GameHeaderProps) {
           <Text style={[styles.speedText, { color: speedInfo.color }]}>
             {speedInfo.text}
           </Text>
+          {speedLevel > 0 && (
+            <Zap size={16} color={speedInfo.color} style={styles.zapIcon} />
+          )}
         </View>
         
-        {score < 500 && (
+        {speedLevel < 10 && (
           <Text style={styles.nextMilestone}>
-            {500 - score} points to Speed Mode
+            {pointsToNext} points to next speed level
+          </Text>
+        )}
+        
+        {speedLevel >= 5 && (
+          <Text style={styles.insaneWarning}>
+            ⚠️ MAXIMUM DIFFICULTY REACHED!
           </Text>
         )}
       </View>
@@ -153,9 +192,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  zapIcon: {
+    marginLeft: 6,
+  },
   nextMilestone: {
     fontSize: 12,
     color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'center',
+    marginBottom: 4,
+  },
+  insaneWarning: {
+    fontSize: 11,
+    color: '#ff0080',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
 });

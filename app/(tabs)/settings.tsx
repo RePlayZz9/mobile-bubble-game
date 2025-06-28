@@ -77,50 +77,39 @@ export default function SettingsScreen() {
               <Text style={styles.infoText}>
                 🎯 Tap bubbles to pop them and earn points{'\n'}
                 ⏰ Each bubble adds 1 second to your timer{'\n'}
-                🎪 Smaller bubbles = higher points (much harder to hit!){'\n'}
-                🚀 Game speeds up after reaching 500 points{'\n'}
+                🚀 Every 500 points increases speed level{'\n'}
+                📉 Higher levels = smaller, faster bubbles{'\n'}
                 💀 Avoid black skull bubbles - they end the game!{'\n'}
-                🏆 Keep popping to extend your time and beat your high score!
+                🏆 Unlimited speed progression - how far can you go?
               </Text>
             </View>
           </View>
 
-          {/* Risk vs Reward */}
+          {/* Progressive Speed System */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Risk vs Reward</Text>
-            <View style={styles.riskCard}>
-              <View style={styles.riskHeader}>
-                <Target size={24} color="#FFD700" />
-                <Text style={styles.riskTitle}>Precision Challenge</Text>
-              </View>
-              <Text style={styles.riskDescription}>
-                All bubbles are now much smaller! Higher value bubbles are extremely tiny and require 
-                precise aim. Master your accuracy to achieve high scores in this challenging precision game.
-              </Text>
-            </View>
-          </View>
-
-          {/* Speed Mode */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Speed Mode</Text>
+            <Text style={styles.sectionTitle}>Progressive Speed System</Text>
             <View style={styles.speedCard}>
               <View style={styles.speedHeader}>
                 <Zap size={24} color="#ff4757" />
-                <Text style={styles.speedTitle}>Activated at 500 Points</Text>
+                <Text style={styles.speedTitle}>Every 500 Points = Faster!</Text>
               </View>
               <View style={styles.speedList}>
-                <Text style={styles.speedText}>⚡ Bubbles appear much faster</Text>
-                <Text style={styles.speedText}>⏱️ Bubbles disappear very quickly</Text>
-                <Text style={styles.speedText}>💀 Black skull bubbles start appearing</Text>
-                <Text style={styles.speedText}>🎯 More bubbles on screen at once</Text>
-                <Text style={styles.speedText}>🔥 Ultimate precision test!</Text>
+                <Text style={styles.speedText}>🎯 Level 0 (0-499): Normal Mode</Text>
+                <Text style={styles.speedText}>🚀 Level 1 (500+): Speed Mode + Skulls</Text>
+                <Text style={styles.speedText}>⚡ Level 2 (1000+): Turbo Mode</Text>
+                <Text style={styles.speedText}>💥 Level 3 (1500+): Hyper Mode</Text>
+                <Text style={styles.speedText}>🔥 Level 4 (2000+): Ultra Mode</Text>
+                <Text style={styles.speedText}>💀 Level 5+ (2500+): Insane Mode</Text>
               </View>
+              <Text style={styles.speedNote}>
+                Each level makes bubbles smaller, faster, and more challenging!
+              </Text>
             </View>
           </View>
 
           {/* Bubble Values */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bubble Values & Sizes</Text>
+            <Text style={styles.sectionTitle}>Bubble Values & Progressive Sizes</Text>
             <View style={styles.bubbleValues}>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
@@ -130,7 +119,7 @@ export default function SettingsScreen() {
                   borderRadius: 18,
                 }]} />
                 <Text style={styles.bubblePoints}>10 pts</Text>
-                <Text style={styles.bubbleSize}>Large</Text>
+                <Text style={styles.bubbleSize}>Largest</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
@@ -168,7 +157,7 @@ export default function SettingsScreen() {
               </View>
             </View>
             <Text style={styles.difficultyNote}>
-              ⚠️ All bubbles are now much smaller - precision is key!
+              ⚠️ Bubbles get even smaller at higher speed levels!
             </Text>
           </View>
 
@@ -181,8 +170,9 @@ export default function SettingsScreen() {
                 <Text style={styles.dangerTitle}>Black Skull Bubbles</Text>
               </View>
               <Text style={styles.dangerText}>
-                In Speed Mode (500+ points), dangerous black bubbles with skulls will appear. 
-                Touching these will immediately end your game! They're also smaller and disappear very quickly.
+                Starting at Speed Level 1 (500+ points), dangerous black bubbles appear. 
+                They get smaller, faster, and more frequent at higher speed levels. 
+                One touch = instant game over!
               </Text>
               <View style={styles.skullPreview}>
                 <View style={styles.blackBubblePreview}>
@@ -195,20 +185,20 @@ export default function SettingsScreen() {
 
           {/* Strategy Tips */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Strategy Tips</Text>
+            <Text style={styles.sectionTitle}>Pro Strategy Tips</Text>
             <View style={styles.strategyCard}>
               <View style={styles.strategyHeader}>
-                <Timer size={24} color="#4ECDC4" />
-                <Text style={styles.strategyTitle}>Precision Pro Tips</Text>
+                <Target size={24} color="#4ECDC4" />
+                <Text style={styles.strategyTitle}>Master the Speed Levels</Text>
               </View>
               <Text style={styles.strategyText}>
-                • Practice your aim - all bubbles are much smaller now{'\n'}
-                • Start with pink bubbles to build confidence{'\n'}
-                • Gold bubbles are extremely tiny - only attempt when ready{'\n'}
-                • Use both thumbs for better coverage{'\n'}
-                • Stay calm under pressure in Speed Mode{'\n'}
-                • Build up time before attempting risky small bubbles{'\n'}
-                • Every tap counts - make them precise!
+                • Build up time in early levels before speed increases{'\n'}
+                • Focus on larger bubbles when speed gets intense{'\n'}
+                • Use both thumbs for better coverage at high speeds{'\n'}
+                • Stay calm - panic leads to skull bubble hits{'\n'}
+                • Each speed level requires new strategies{'\n'}
+                • Practice precision - bubbles shrink every 500 points{'\n'}
+                • Plan your moves - higher levels are unforgiving!
               </Text>
             </View>
           </View>
@@ -300,29 +290,6 @@ const styles = StyleSheet.create({
     color: 'white',
     lineHeight: 22,
   },
-  riskCard: {
-    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-    borderRadius: 16,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 215, 0, 0.3)',
-  },
-  riskHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  riskTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFD700',
-    marginLeft: 8,
-  },
-  riskDescription: {
-    fontSize: 14,
-    color: 'white',
-    lineHeight: 20,
-  },
   speedCard: {
     backgroundColor: 'rgba(255, 71, 87, 0.1)',
     borderRadius: 16,
@@ -343,11 +310,18 @@ const styles = StyleSheet.create({
   },
   speedList: {
     gap: 8,
+    marginBottom: 12,
   },
   speedText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'white',
     fontWeight: '500',
+  },
+  speedNote: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
   bubbleValues: {
     flexDirection: 'row',

@@ -40,16 +40,21 @@ export function GameEngine({
 }: GameEngineProps) {
   const [bubbles, setBubbles] = useState<BubbleData[]>([]);
 
-  // Determine if we're in speed mode (after 500 points)
-  const isSpeedMode = score >= 500;
+  // Calculate speed level based on score (every 500 points)
+  const getSpeedLevel = () => Math.floor(score / 500);
+  const speedLevel = getSpeedLevel();
+  const isSpeedMode = speedLevel > 0;
 
   const generateBubble = useCallback((): BubbleData => {
-    // Add chance for black bubbles in speed mode
-    const shouldCreateBlackBubble = isSpeedMode && Math.random() < 0.2; // 20% chance in speed mode
+    // Black bubbles appear starting from speed level 1 (500+ points)
+    // Chance increases with each speed level
+    const blackBubbleChance = isSpeedMode ? Math.min(0.15 + (speedLevel * 0.05), 0.35) : 0;
+    const shouldCreateBlackBubble = Math.random() < blackBubbleChance;
     
     if (shouldCreateBlackBubble) {
-      // Black bubbles use smaller medium size for balance
-      const size = 35 + Math.random() * 8; // Size between 35-43 (reduced from 45-55)
+      // Black bubbles get smaller at higher speed levels
+      const baseSize = Math.max(35 - (speedLevel * 2), 25);
+      const size = baseSize + Math.random() * 8;
       return {
         id: Math.random().toString(36).substr(2, 9),
         x: Math.random() * (screenWidth - size),
@@ -64,10 +69,10 @@ export function GameEngine({
     
     const colorData = BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)];
     
-    // Size based on point value - higher points = smaller size
-    // Add small random variation to base size
-    const sizeVariation = Math.random() * 6 - 3; // ±3 pixels variation (reduced from ±4)
-    const size = Math.max(colorData.baseSize + sizeVariation, 20); // Minimum size of 20 (reduced from 25)
+    // Size gets smaller with each speed level
+    const sizeReduction = speedLevel * 1.5; // Reduce by 1.5px per speed level
+    const sizeVariation = Math.random() * 6 - 3; // ±3 pixels variation
+    const size = Math.max(colorData.baseSize - sizeReduction + sizeVariation, 15); // Minimum size of 15
     
     return {
       id: Math.random().toString(36).substr(2, 9),
@@ -79,7 +84,7 @@ export function GameEngine({
       type: 'normal',
       createdAt: Date.now(),
     };
-  }, [screenWidth, screenHeight, isSpeedMode]);
+  }, [screenWidth, screenHeight, speedLevel, isSpeedMode]);
 
   const removeBubble = useCallback((id: string) => {
     setBubbles(prev => prev.filter(bubble => bubble.id !== id));
@@ -94,13 +99,16 @@ export function GameEngine({
     removeBubble(bubble.id);
   }, [onBubblePop, onBlackBubblePop, removeBubble]);
 
-  // Generate bubbles with speed-based intervals
+  // Generate bubbles with progressive speed increases
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Speed mode: faster bubble generation
-    const bubbleInterval = isSpeedMode ? 800 : 1500; // Much faster in speed mode
-    const maxBubbles = isSpeedMode ? 8 : 5; // More bubbles in speed mode
+    // Progressive speed: gets faster every 500 points
+    // Base interval: 1500ms, reduces by 200ms per speed level, minimum 300ms
+    const bubbleInterval = Math.max(1500 - (speedLevel * 200), 300);
+    
+    // More bubbles at higher speed levels
+    const maxBubbles = Math.min(5 + speedLevel, 12);
 
     const interval = setInterval(() => {
       setBubbles(prev => {
@@ -112,14 +120,15 @@ export function GameEngine({
     }, bubbleInterval);
 
     return () => clearInterval(interval);
-  }, [gameState, isSpeedMode, generateBubble]);
+  }, [gameState, speedLevel, generateBubble]);
 
-  // Auto-remove bubbles with much faster timing
+  // Auto-remove bubbles with progressive speed
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Much faster bubble disappearance
-    const bubbleLifetime = isSpeedMode ? 1200 : 2000; // Very short lifetime
+    // Progressive bubble lifetime: gets shorter every 500 points
+    // Base lifetime: 2000ms, reduces by 250ms per speed level, minimum 800ms
+    const bubbleLifetime = Math.max(2000 - (speedLevel * 250), 800);
 
     const cleanupInterval = setInterval(() => {
       setBubbles(prev => {
@@ -132,7 +141,7 @@ export function GameEngine({
     }, 200); // Check every 200ms for precise timing
 
     return () => clearInterval(cleanupInterval);
-  }, [gameState, isSpeedMode]);
+  }, [gameState, speedLevel]);
 
   // Clear bubbles when game is not playing
   useEffect(() => {
@@ -153,14 +162,14 @@ export function GameEngine({
             key={bubble.id}
             bubble={bubble}
             onPop={handleBubblePop}
-            isSpeedMode={isSpeedMode}
+            speedLevel={speedLevel}
           />
         ) : (
           <Bubble
             key={bubble.id}
             bubble={bubble}
             onPop={handleBubblePop}
-            isSpeedMode={isSpeedMode}
+            speedLevel={speedLevel}
           />
         )
       ))}

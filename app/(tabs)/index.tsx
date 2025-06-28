@@ -77,6 +77,18 @@ export default function GameScreen() {
     return () => clearInterval(interval);
   }, [gameState, timeLeft]);
 
+  const getSpeedLevel = () => Math.floor(score / 500);
+  const speedLevel = getSpeedLevel();
+
+  const getSpeedDescription = () => {
+    if (speedLevel === 0) return "Pop bubbles to extend your time!";
+    if (speedLevel === 1) return "Speed Mode activated! Skulls appear!";
+    if (speedLevel === 2) return "Turbo Mode! Even faster gameplay!";
+    if (speedLevel === 3) return "Hyper Mode! Lightning speed!";
+    if (speedLevel === 4) return "Ultra Mode! Maximum challenge!";
+    return `Insane Mode x${speedLevel}! Impossible speed!`;
+  };
+
   if (gameState === 'menu') {
     return (
       <LinearGradient
@@ -88,14 +100,25 @@ export default function GameScreen() {
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.menuContainer}>
             <Text style={styles.title}>Bubble Pop</Text>
-            <Text style={styles.subtitle}>Pop bubbles to extend your time!</Text>
+            <Text style={styles.subtitle}>{getSpeedDescription()}</Text>
             
             <View style={styles.rulesContainer}>
-              <Text style={styles.rulesTitle}>How to Play:</Text>
-              <Text style={styles.ruleText}>🎯 Pop bubbles to earn points</Text>
-              <Text style={styles.ruleText}>⏰ Each bubble adds 1 second</Text>
-              <Text style={styles.ruleText}>🚀 Game speeds up after 500 points</Text>
-              <Text style={styles.ruleText}>💀 Avoid black skulls - they end the game!</Text>
+              <Text style={styles.rulesTitle}>Progressive Speed System:</Text>
+              <Text style={styles.ruleText}>🎯 Pop bubbles to earn points (+1 second each)</Text>
+              <Text style={styles.ruleText}>🚀 Every 500 points = faster speed level</Text>
+              <Text style={styles.ruleText}>⚡ Higher levels = smaller, faster bubbles</Text>
+              <Text style={styles.ruleText}>💀 Skulls appear at 500+ points</Text>
+              <Text style={styles.ruleText}>🔥 Unlimited speed progression!</Text>
+            </View>
+
+            <View style={styles.speedLevels}>
+              <Text style={styles.speedTitle}>Speed Levels:</Text>
+              <Text style={styles.speedLevel}>🎯 0-499: Normal Mode</Text>
+              <Text style={styles.speedLevel}>🚀 500+: Speed Mode</Text>
+              <Text style={styles.speedLevel}>⚡ 1000+: Turbo Mode</Text>
+              <Text style={styles.speedLevel}>💥 1500+: Hyper Mode</Text>
+              <Text style={styles.speedLevel}>🔥 2000+: Ultra Mode</Text>
+              <Text style={styles.speedLevel}>💀 2500+: Insane Mode</Text>
             </View>
             
             <View style={styles.statsContainer}>
@@ -153,6 +176,7 @@ export default function GameScreen() {
           score={score}
           highScore={getHighScore()}
           reason={gameOverReason}
+          speedLevel={speedLevel}
           onPlayAgain={startGame}
           onMenu={resetGame}
         />
@@ -188,32 +212,53 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   rulesContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
     padding: 20,
-    marginBottom: 32,
+    marginBottom: 20,
     alignItems: 'center',
   },
   rulesTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   ruleText: {
-    fontSize: 14,
+    fontSize: 13,
     color: 'rgba(255, 255, 255, 0.9)',
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: 'center',
+  },
+  speedLevels: {
+    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 71, 87, 0.3)',
+  },
+  speedTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ff4757',
+    marginBottom: 10,
+  },
+  speedLevel: {
+    fontSize: 12,
+    color: 'white',
+    marginBottom: 4,
+    fontWeight: '500',
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    marginBottom: 48,
+    marginBottom: 32,
   },
   statItem: {
     alignItems: 'center',

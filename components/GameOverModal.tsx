@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Trophy, RotateCcw, Chrome as Home, Skull, Clock } from 'lucide-react-native';
+import { Trophy, RotateCcw, Chrome as Home, Skull, Clock, Zap } from 'lucide-react-native';
 
 interface GameOverModalProps {
   visible: boolean;
   score: number;
   highScore: number;
   reason: 'time' | 'blackBubble';
+  speedLevel?: number;
   onPlayAgain: () => void;
   onMenu: () => void;
 }
@@ -17,6 +18,7 @@ export function GameOverModal({
   score, 
   highScore, 
   reason,
+  speedLevel = 0,
   onPlayAgain, 
   onMenu 
 }: GameOverModalProps) {
@@ -44,15 +46,29 @@ export function GameOverModal({
     return <Clock size={40} color="white" strokeWidth={2.5} />;
   };
 
-  const getSpeedModeAchievement = () => {
-    if (score >= 500) {
-      return (
-        <View style={styles.achievementBadge}>
-          <Text style={styles.achievementText}>🚀 Speed Mode Reached!</Text>
-        </View>
-      );
-    }
-    return null;
+  const getSpeedAchievement = () => {
+    if (speedLevel === 0) return null;
+    
+    const achievements = [
+      { level: 1, name: "Speed Mode", icon: "🚀", color: "#ff4757" },
+      { level: 2, name: "Turbo Mode", icon: "⚡", color: "#ff6b35" },
+      { level: 3, name: "Hyper Mode", icon: "💥", color: "#ff9500" },
+      { level: 4, name: "Ultra Mode", icon: "🔥", color: "#ffcc00" },
+      { level: 5, name: "Insane Mode", icon: "💀", color: "#ff0080" },
+    ];
+    
+    const achievement = achievements.find(a => a.level === speedLevel) || 
+                      { level: speedLevel, name: `Insane x${speedLevel}`, icon: "💀", color: "#ff0080" };
+    
+    return (
+      <View style={[styles.achievementBadge, { borderColor: achievement.color + '50' }]}>
+        <Text style={styles.achievementIcon}>{achievement.icon}</Text>
+        <Text style={[styles.achievementText, { color: achievement.color }]}>
+          {achievement.name} Reached!
+        </Text>
+        <Zap size={16} color={achievement.color} />
+      </View>
+    );
   };
 
   return (
@@ -76,7 +92,7 @@ export function GameOverModal({
               </View>
             )}
 
-            {getSpeedModeAchievement()}
+            {getSpeedAchievement()}
 
             <Text style={styles.gameOverTitle}>Game Over</Text>
             <Text style={styles.gameOverMessage}>{getGameOverMessage()}</Text>
@@ -91,8 +107,8 @@ export function GameOverModal({
                   <Text style={styles.statLabel}>High Score</Text>
                 </View>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>+1s</Text>
-                  <Text style={styles.statLabel}>Per Bubble</Text>
+                  <Text style={styles.statValue}>Level {speedLevel}</Text>
+                  <Text style={styles.statLabel}>Speed Reached</Text>
                 </View>
               </View>
             </View>
@@ -170,18 +186,23 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   achievementBadge: {
-    backgroundColor: 'rgba(255, 71, 87, 0.2)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 71, 87, 0.3)',
+    borderWidth: 2,
+  },
+  achievementIcon: {
+    fontSize: 16,
+    marginRight: 8,
   },
   achievementText: {
-    color: '#ff4757',
     fontSize: 12,
     fontWeight: 'bold',
+    marginRight: 6,
   },
   gameOverTitle: {
     fontSize: 32,

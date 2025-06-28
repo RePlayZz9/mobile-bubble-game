@@ -24,28 +24,29 @@ interface BubbleData {
 interface BubbleProps {
   bubble: BubbleData;
   onPop: (bubble: BubbleData) => void;
-  isSpeedMode?: boolean;
+  speedLevel?: number;
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
+export function Bubble({ bubble, onPop, speedLevel = 0 }: BubbleProps) {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(1);
   const translateY = useSharedValue(0);
 
   useEffect(() => {
-    // Entrance animation - much faster
-    const springConfig = isSpeedMode 
-      ? { damping: 15, stiffness: 200 }
-      : { damping: 12, stiffness: 150 };
+    // Entrance animation - gets faster with speed level
+    const springConfig = {
+      damping: Math.min(8 + speedLevel * 2, 20),
+      stiffness: Math.min(100 + speedLevel * 25, 250)
+    };
     
     scale.value = withSpring(1, springConfig);
 
-    // Faster floating animation
+    // Faster floating animation at higher speed levels
     const startFloating = () => {
-      const floatDistance = isSpeedMode ? 8 : 6;
-      const floatDuration = isSpeedMode ? 600 : 1000;
+      const floatDistance = Math.max(10 - speedLevel, 4);
+      const floatDuration = Math.max(1000 - speedLevel * 150, 400);
       
       translateY.value = withSequence(
         withTiming(-floatDistance, { duration: floatDuration }),
@@ -55,12 +56,12 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
     };
 
     const timer = setTimeout(startFloating, Math.random() * 300);
-    const floatingInterval = setInterval(startFloating, isSpeedMode ? 1800 : 3000);
+    const floatingInterval = setInterval(startFloating, Math.max(3000 - speedLevel * 400, 1000));
 
-    // Auto-fade effect for faster disappearance
-    const fadeDelay = isSpeedMode ? 800 : 1500; // Start fading much earlier
+    // Progressive auto-fade - gets much faster at higher speed levels
+    const fadeDelay = Math.max(1500 - speedLevel * 200, 600);
     const fadeTimer = setTimeout(() => {
-      opacity.value = withTiming(0, { duration: isSpeedMode ? 400 : 500 });
+      opacity.value = withTiming(0, { duration: Math.max(500 - speedLevel * 50, 200) });
     }, fadeDelay);
 
     return () => {
@@ -68,7 +69,7 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
       clearTimeout(fadeTimer);
       clearInterval(floatingInterval);
     };
-  }, [isSpeedMode]);
+  }, [speedLevel]);
 
   const handlePress = () => {
     // Haptic feedback
@@ -76,9 +77,9 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    // Very fast pop animation
-    const popDuration = isSpeedMode ? 80 : 100;
-    const fadeDuration = isSpeedMode ? 150 : 200;
+    // Very fast pop animation at higher speed levels
+    const popDuration = Math.max(100 - speedLevel * 10, 50);
+    const fadeDuration = Math.max(200 - speedLevel * 20, 100);
     
     scale.value = withSequence(
       withTiming(1.2, { duration: popDuration }),
@@ -108,6 +109,24 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
     return [lighter, baseColor, darker];
   };
 
+  const getSpeedGlowIntensity = () => {
+    if (speedLevel === 0) return null;
+    
+    // Different glow colors for different speed levels
+    const glowColors = [
+      '#ff4757', // Level 1 (500+)
+      '#ff6b35', // Level 2 (1000+)
+      '#ff9500', // Level 3 (1500+)
+      '#ffcc00', // Level 4 (2000+)
+      '#ff0080', // Level 5+ (2500+)
+    ];
+    
+    const colorIndex = Math.min(speedLevel - 1, glowColors.length - 1);
+    return glowColors[colorIndex];
+  };
+
+  const speedGlowColor = getSpeedGlowIntensity();
+
   return (
     <AnimatedTouchableOpacity
       style={[
@@ -120,7 +139,7 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
           borderRadius: bubble.size / 2,
         },
         animatedStyle,
-        isSpeedMode && styles.speedModeBubble,
+        speedLevel > 0 && styles.speedModeBubble,
       ]}
       onPress={handlePress}
       activeOpacity={0.8}
@@ -153,17 +172,19 @@ export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
         ]}
       />
       
-      {/* Speed mode glow effect */}
-      {isSpeedMode && (
+      {/* Progressive speed glow effect */}
+      {speedGlowColor && (
         <Animated.View
           style={[
             styles.speedGlow,
             {
-              width: bubble.size + 8,
-              height: bubble.size + 8,
-              borderRadius: (bubble.size + 8) / 2,
-              top: -4,
-              left: -4,
+              width: bubble.size + (4 + speedLevel * 2),
+              height: bubble.size + (4 + speedLevel * 2),
+              borderRadius: (bubble.size + (4 + speedLevel * 2)) / 2,
+              top: -(2 + speedLevel),
+              left: -(2 + speedLevel),
+              borderColor: speedGlowColor + '60', // Add transparency
+              borderWidth: Math.min(1 + speedLevel * 0.5, 3),
             },
           ]}
         />
@@ -185,7 +206,6 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   speedModeBubble: {
-    shadowColor: '#ff4757',
     shadowOpacity: 0.5,
     elevation: 12,
   },
@@ -199,7 +219,5 @@ const styles = StyleSheet.create({
   },
   speedGlow: {
     position: 'absolute',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 71, 87, 0.4)',
   },
 });
