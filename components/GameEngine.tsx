@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Bubble } from './Bubble';
 import { BlackBubble } from './BlackBubble';
 
@@ -15,7 +15,7 @@ interface BubbleData {
 
 interface GameEngineProps {
   gameState: 'playing' | 'paused' | 'gameOver';
-  level: number;
+  score: number;
   onBubblePop: (points: number) => void;
   onBlackBubblePop: () => void;
   screenWidth: number;
@@ -31,7 +31,7 @@ const BUBBLE_COLORS = [
 
 export function GameEngine({ 
   gameState, 
-  level, 
+  score,
   onBubblePop, 
   onBlackBubblePop,
   screenWidth, 
@@ -39,11 +39,14 @@ export function GameEngine({
 }: GameEngineProps) {
   const [bubbles, setBubbles] = useState<BubbleData[]>([]);
 
+  // Determine if we're in speed mode (after 500 points)
+  const isSpeedMode = score >= 500;
+
   const generateBubble = useCallback((): BubbleData => {
     const size = 40 + Math.random() * 30; // Size between 40-70
     
-    // After level 5, add chance for black bubbles
-    const shouldCreateBlackBubble = level >= 5 && Math.random() < 0.15; // 15% chance
+    // Add chance for black bubbles in speed mode
+    const shouldCreateBlackBubble = isSpeedMode && Math.random() < 0.2; // 20% chance in speed mode
     
     if (shouldCreateBlackBubble) {
       return {
@@ -67,11 +70,7 @@ export function GameEngine({
       size: size,
       type: 'normal',
     };
-  }, [screenWidth, screenHeight, level]);
-
-  const addBubble = useCallback(() => {
-    setBubbles(prev => [...prev, generateBubble()]);
-  }, [generateBubble]);
+  }, [screenWidth, screenHeight, isSpeedMode]);
 
   const removeBubble = useCallback((id: string) => {
     setBubbles(prev => prev.filter(bubble => bubble.id !== id));
@@ -86,15 +85,13 @@ export function GameEngine({
     removeBubble(bubble.id);
   }, [onBubblePop, onBlackBubblePop, removeBubble]);
 
-  // Generate bubbles based on level with increasing speed
+  // Generate bubbles with speed-based intervals
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Speed increases with each level - starts at 2000ms, decreases by 150ms per level, minimum 300ms
-    const bubbleInterval = Math.max(2000 - (level * 150), 300);
-    
-    // More bubbles as level increases - starts with 3, adds 1 per level, max 10
-    const maxBubbles = Math.min(3 + level, 10);
+    // Speed mode: faster bubble generation
+    const bubbleInterval = isSpeedMode ? 800 : 1500; // Much faster in speed mode
+    const maxBubbles = isSpeedMode ? 8 : 5; // More bubbles in speed mode
 
     const interval = setInterval(() => {
       setBubbles(prev => {
@@ -106,28 +103,32 @@ export function GameEngine({
     }, bubbleInterval);
 
     return () => clearInterval(interval);
-  }, [gameState, level, generateBubble]);
+  }, [gameState, isSpeedMode, generateBubble]);
 
-  // Auto-remove bubbles after some time (faster removal at higher levels)
+  // Auto-remove bubbles with speed-based timing
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Cleanup interval decreases with level for more challenge
-    const cleanupTime = Math.max(4000 - (level * 200), 2000);
+    // Speed mode: bubbles disappear faster
+    const bubbleLifetime = isSpeedMode ? 2500 : 4000; // Much shorter in speed mode
 
     const cleanupInterval = setInterval(() => {
       setBubbles(prev => {
-        // Remove oldest bubble if there are too many
-        const maxBubblesBeforeCleanup = Math.min(6 + Math.floor(level / 2), 12);
-        if (prev.length > maxBubblesBeforeCleanup) {
-          return prev.slice(1); // Remove first (oldest) bubble
-        }
-        return prev;
+        // Remove bubbles that have been around too long
+        const now = Date.now();
+        return prev.filter((bubble, index) => {
+          // Remove oldest bubbles first if there are too many
+          const maxBubblesBeforeCleanup = isSpeedMode ? 6 : 8;
+          if (prev.length > maxBubblesBeforeCleanup && index === 0) {
+            return false;
+          }
+          return true;
+        });
       });
-    }, cleanupTime);
+    }, bubbleLifetime / 4); // Check more frequently
 
     return () => clearInterval(cleanupInterval);
-  }, [gameState, level]);
+  }, [gameState, isSpeedMode]);
 
   // Clear bubbles when game is not playing
   useEffect(() => {
@@ -148,12 +149,14 @@ export function GameEngine({
             key={bubble.id}
             bubble={bubble}
             onPop={handleBubblePop}
+            isSpeedMode={isSpeedMode}
           />
         ) : (
           <Bubble
             key={bubble.id}
             bubble={bubble}
             onPop={handleBubblePop}
+            isSpeedMode={isSpeedMode}
           />
         )
       ))}

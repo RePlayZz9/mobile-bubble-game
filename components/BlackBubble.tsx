@@ -26,50 +26,58 @@ interface BubbleData {
 interface BlackBubbleProps {
   bubble: BubbleData;
   onPop: (bubble: BubbleData) => void;
+  isSpeedMode?: boolean;
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-export function BlackBubble({ bubble, onPop }: BlackBubbleProps) {
+export function BlackBubble({ bubble, onPop, isSpeedMode = false }: BlackBubbleProps) {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(1);
   const translateY = useSharedValue(0);
   const pulseScale = useSharedValue(1);
 
   useEffect(() => {
-    // Entrance animation
-    scale.value = withSpring(1, {
-      damping: 8,
-      stiffness: 100,
-    });
+    // Entrance animation - faster in speed mode
+    const springConfig = isSpeedMode 
+      ? { damping: 12, stiffness: 150 }
+      : { damping: 8, stiffness: 100 };
+    
+    scale.value = withSpring(1, springConfig);
 
-    // Menacing floating animation
+    // Menacing floating animation - more aggressive in speed mode
     const startFloating = () => {
+      const floatDistance = isSpeedMode ? 20 : 15;
+      const floatDuration = isSpeedMode ? 800 : 1500;
+      
       translateY.value = withSequence(
-        withTiming(-15, { duration: 1500 }),
-        withTiming(15, { duration: 1500 }),
-        withTiming(0, { duration: 1500 }),
+        withTiming(-floatDistance, { duration: floatDuration }),
+        withTiming(floatDistance, { duration: floatDuration }),
+        withTiming(0, { duration: floatDuration }),
       );
     };
 
-    // Pulsing effect to make it look dangerous
+    // Pulsing effect - faster and more intense in speed mode
+    const pulseDuration = isSpeedMode ? 400 : 800;
+    const pulseIntensity = isSpeedMode ? 1.2 : 1.1;
+    
     pulseScale.value = withRepeat(
       withSequence(
-        withTiming(1.1, { duration: 800 }),
-        withTiming(1, { duration: 800 })
+        withTiming(pulseIntensity, { duration: pulseDuration }),
+        withTiming(1, { duration: pulseDuration })
       ),
       -1,
       true
     );
 
-    const timer = setTimeout(startFloating, Math.random() * 1000);
-    const floatingInterval = setInterval(startFloating, 4500);
+    const timer = setTimeout(startFloating, Math.random() * 500);
+    const floatingInterval = setInterval(startFloating, isSpeedMode ? 2500 : 4500);
 
     return () => {
       clearTimeout(timer);
       clearInterval(floatingInterval);
     };
-  }, []);
+  }, [isSpeedMode]);
 
   const handlePress = () => {
     // Strong haptic feedback for danger
@@ -77,18 +85,21 @@ export function BlackBubble({ bubble, onPop }: BlackBubbleProps) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     }
 
-    // Dramatic pop animation
+    // Dramatic pop animation - faster in speed mode
+    const popDuration = isSpeedMode ? 150 : 200;
+    const fadeDuration = isSpeedMode ? 300 : 500;
+    
     scale.value = withSequence(
-      withTiming(1.5, { duration: 200 }),
-      withTiming(0, { duration: 300 }),
+      withTiming(1.5, { duration: popDuration }),
+      withTiming(0, { duration: fadeDuration - popDuration }),
     );
     
-    opacity.value = withTiming(0, { duration: 500 });
+    opacity.value = withTiming(0, { duration: fadeDuration });
 
     // Call onPop after animation
     setTimeout(() => {
       runOnJS(onPop)(bubble);
-    }, 500);
+    }, fadeDuration);
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -111,6 +122,7 @@ export function BlackBubble({ bubble, onPop }: BlackBubbleProps) {
           borderRadius: bubble.size / 2,
         },
         animatedStyle,
+        isSpeedMode && styles.speedModeBlackBubble,
       ]}
       onPress={handlePress}
       activeOpacity={0.8}
@@ -149,17 +161,18 @@ export function BlackBubble({ bubble, onPop }: BlackBubbleProps) {
         ]}
       />
       
-      {/* Red glow border */}
+      {/* Red glow border - more intense in speed mode */}
       <Animated.View
         style={[
           styles.glowBorder,
           {
-            width: bubble.size + 4,
-            height: bubble.size + 4,
-            borderRadius: (bubble.size + 4) / 2,
-            top: -2,
-            left: -2,
+            width: bubble.size + (isSpeedMode ? 8 : 4),
+            height: bubble.size + (isSpeedMode ? 8 : 4),
+            borderRadius: (bubble.size + (isSpeedMode ? 8 : 4)) / 2,
+            top: isSpeedMode ? -4 : -2,
+            left: isSpeedMode ? -4 : -2,
           },
+          isSpeedMode && styles.speedModeGlow,
         ]}
       />
     </AnimatedTouchableOpacity>
@@ -178,6 +191,11 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 12,
   },
+  speedModeBlackBubble: {
+    shadowOpacity: 0.8,
+    shadowRadius: 16,
+    elevation: 16,
+  },
   bubbleGradient: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -192,5 +210,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderWidth: 1,
     borderColor: 'rgba(255, 71, 87, 0.3)',
+  },
+  speedModeGlow: {
+    borderWidth: 2,
+    borderColor: 'rgba(255, 71, 87, 0.6)',
   },
 });

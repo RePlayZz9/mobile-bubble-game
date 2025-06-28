@@ -1,50 +1,45 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Pause, Clock, Star, Target, Timer } from 'lucide-react-native';
+import { Pause, Clock, Star } from 'lucide-react-native';
 
 interface GameHeaderProps {
   score: number;
   timeLeft: number;
-  level: number;
-  levelTimeLeft: number;
-  requiredScore: number;
   onPause: () => void;
 }
 
-export function GameHeader({ 
-  score, 
-  timeLeft, 
-  level, 
-  levelTimeLeft, 
-  requiredScore, 
-  onPause 
-}: GameHeaderProps) {
+export function GameHeader({ score, timeLeft, onPause }: GameHeaderProps) {
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const getTimeColor = (time: number) => {
-    if (time <= 10) return '#FF4757';
-    if (time <= 30) return '#FFA502';
+  const getTimeColor = () => {
+    if (timeLeft <= 10) return '#FF4757';
+    if (timeLeft <= 30) return '#FFA502';
     return 'white';
   };
 
-  const getProgressColor = () => {
-    const progress = score / requiredScore;
-    if (progress >= 1) return '#2ed573';
-    if (progress >= 0.7) return '#ffa502';
-    return '#ff4757';
+  const getSpeedIndicator = () => {
+    if (score >= 500) {
+      return {
+        text: 'SPEED MODE',
+        color: '#ff4757',
+        icon: '🚀'
+      };
+    }
+    return {
+      text: 'NORMAL',
+      color: '#4ECDC4',
+      icon: '🎯'
+    };
   };
 
-  const getProgressPercentage = () => {
-    return Math.min((score / requiredScore) * 100, 100);
-  };
+  const speedInfo = getSpeedIndicator();
 
   return (
     <View style={styles.container}>
-      {/* Top Row */}
       <View style={styles.topRow}>
         <View style={styles.scoreSection}>
           <View style={styles.statItem}>
@@ -60,46 +55,28 @@ export function GameHeader({
 
         <View style={styles.timeSection}>
           <View style={styles.statItem}>
-            <Clock size={18} color={getTimeColor(timeLeft)} />
-            <Text style={[styles.timeValue, { color: getTimeColor(timeLeft) }]}>
+            <Clock size={18} color={getTimeColor()} />
+            <Text style={[styles.timeValue, { color: getTimeColor() }]}>
               {formatTime(timeLeft)}
             </Text>
           </View>
-          <Text style={styles.statLabel}>Total Time</Text>
+          <Text style={styles.statLabel}>Time Left</Text>
         </View>
       </View>
 
-      {/* Level Progress Row */}
-      <View style={styles.levelRow}>
-        <View style={styles.levelInfo}>
-          <Text style={styles.levelText}>Level {level}</Text>
-          <View style={styles.levelTimer}>
-            <Timer size={16} color={getTimeColor(levelTimeLeft)} />
-            <Text style={[styles.levelTimeText, { color: getTimeColor(levelTimeLeft) }]}>
-              {formatTime(levelTimeLeft)}
-            </Text>
-          </View>
+      <View style={styles.speedRow}>
+        <View style={[styles.speedIndicator, { borderColor: speedInfo.color }]}>
+          <Text style={styles.speedIcon}>{speedInfo.icon}</Text>
+          <Text style={[styles.speedText, { color: speedInfo.color }]}>
+            {speedInfo.text}
+          </Text>
         </View>
-
-        <View style={styles.progressSection}>
-          <View style={styles.progressHeader}>
-            <Target size={16} color={getProgressColor()} />
-            <Text style={styles.progressText}>
-              {score}/{requiredScore}
-            </Text>
-          </View>
-          <View style={styles.progressBarContainer}>
-            <View 
-              style={[
-                styles.progressBar, 
-                { 
-                  width: `${getProgressPercentage()}%`,
-                  backgroundColor: getProgressColor()
-                }
-              ]} 
-            />
-          </View>
-        </View>
+        
+        {score < 500 && (
+          <Text style={styles.nextMilestone}>
+            {500 - score} points to Speed Mode
+          </Text>
+        )}
       </View>
     </View>
   );
@@ -155,54 +132,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 6,
   },
-  levelRow: {
+  speedRow: {
+    alignItems: 'center',
+  },
+  speedIndicator: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderWidth: 2,
+    marginBottom: 8,
   },
-  levelInfo: {
-    alignItems: 'center',
-  },
-  levelText: {
+  speedIcon: {
     fontSize: 16,
+    marginRight: 8,
+  },
+  speedText: {
+    fontSize: 14,
     fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 4,
   },
-  levelTimer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  levelTimeText: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  progressSection: {
-    flex: 1,
-    marginLeft: 20,
-  },
-  progressHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  progressText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: 'white',
-    marginLeft: 6,
-  },
-  progressBarContainer: {
-    height: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: 4,
-    minWidth: 2,
+  nextMilestone: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
   },
 });

@@ -23,39 +23,44 @@ interface BubbleData {
 interface BubbleProps {
   bubble: BubbleData;
   onPop: (bubble: BubbleData) => void;
+  isSpeedMode?: boolean;
 }
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-export function Bubble({ bubble, onPop }: BubbleProps) {
+export function Bubble({ bubble, onPop, isSpeedMode = false }: BubbleProps) {
   const scale = useSharedValue(0);
   const opacity = useSharedValue(1);
   const translateY = useSharedValue(0);
 
   useEffect(() => {
-    // Entrance animation
-    scale.value = withSpring(1, {
-      damping: 8,
-      stiffness: 100,
-    });
+    // Entrance animation - faster in speed mode
+    const springConfig = isSpeedMode 
+      ? { damping: 12, stiffness: 150 }
+      : { damping: 8, stiffness: 100 };
+    
+    scale.value = withSpring(1, springConfig);
 
-    // Floating animation
+    // Floating animation - more frantic in speed mode
     const startFloating = () => {
+      const floatDistance = isSpeedMode ? 15 : 10;
+      const floatDuration = isSpeedMode ? 1000 : 2000;
+      
       translateY.value = withSequence(
-        withTiming(-10, { duration: 2000 }),
-        withTiming(10, { duration: 2000 }),
-        withTiming(0, { duration: 2000 }),
+        withTiming(-floatDistance, { duration: floatDuration }),
+        withTiming(floatDistance, { duration: floatDuration }),
+        withTiming(0, { duration: floatDuration }),
       );
     };
 
-    const timer = setTimeout(startFloating, Math.random() * 1000);
-    const floatingInterval = setInterval(startFloating, 6000);
+    const timer = setTimeout(startFloating, Math.random() * 500);
+    const floatingInterval = setInterval(startFloating, isSpeedMode ? 3000 : 6000);
 
     return () => {
       clearTimeout(timer);
       clearInterval(floatingInterval);
     };
-  }, []);
+  }, [isSpeedMode]);
 
   const handlePress = () => {
     // Haptic feedback
@@ -63,18 +68,21 @@ export function Bubble({ bubble, onPop }: BubbleProps) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     }
 
-    // Pop animation
+    // Pop animation - faster in speed mode
+    const popDuration = isSpeedMode ? 100 : 150;
+    const fadeDuration = isSpeedMode ? 200 : 350;
+    
     scale.value = withSequence(
-      withTiming(1.3, { duration: 150 }),
-      withTiming(0, { duration: 200 }),
+      withTiming(1.3, { duration: popDuration }),
+      withTiming(0, { duration: fadeDuration - popDuration }),
     );
     
-    opacity.value = withTiming(0, { duration: 350 });
+    opacity.value = withTiming(0, { duration: fadeDuration });
 
     // Call onPop after animation
     setTimeout(() => {
       runOnJS(onPop)(bubble);
-    }, 350);
+    }, fadeDuration);
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -104,6 +112,7 @@ export function Bubble({ bubble, onPop }: BubbleProps) {
           borderRadius: bubble.size / 2,
         },
         animatedStyle,
+        isSpeedMode && styles.speedModeBubble,
       ]}
       onPress={handlePress}
       activeOpacity={0.8}
@@ -135,6 +144,22 @@ export function Bubble({ bubble, onPop }: BubbleProps) {
           },
         ]}
       />
+      
+      {/* Speed mode glow effect */}
+      {isSpeedMode && (
+        <Animated.View
+          style={[
+            styles.speedGlow,
+            {
+              width: bubble.size + 8,
+              height: bubble.size + 8,
+              borderRadius: (bubble.size + 8) / 2,
+              top: -4,
+              left: -4,
+            },
+          ]}
+        />
+      )}
     </AnimatedTouchableOpacity>
   );
 }
@@ -151,6 +176,11 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
   },
+  speedModeBubble: {
+    shadowColor: '#ff4757',
+    shadowOpacity: 0.5,
+    elevation: 12,
+  },
   bubbleGradient: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -158,5 +188,10 @@ const styles = StyleSheet.create({
   shine: {
     position: 'absolute',
     backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  speedGlow: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 71, 87, 0.4)',
   },
 });

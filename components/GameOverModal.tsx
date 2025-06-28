@@ -1,15 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Trophy, RotateCcw, Chrome as Home, Skull, Clock, Target } from 'lucide-react-native';
+import { Trophy, RotateCcw, Chrome as Home, Skull, Clock } from 'lucide-react-native';
 
 interface GameOverModalProps {
   visible: boolean;
   score: number;
   highScore: number;
-  reason: 'time' | 'blackBubble' | 'levelFailed';
-  level: number;
-  requiredScore: number;
+  reason: 'time' | 'blackBubble';
   onPlayAgain: () => void;
   onMenu: () => void;
 }
@@ -19,20 +17,15 @@ export function GameOverModal({
   score, 
   highScore, 
   reason,
-  level,
-  requiredScore,
   onPlayAgain, 
   onMenu 
 }: GameOverModalProps) {
   const isNewHighScore = score === highScore && score > 0;
   const isBlackBubbleGameOver = reason === 'blackBubble';
-  const isLevelFailed = reason === 'levelFailed';
 
   const getGameOverMessage = () => {
     if (isBlackBubbleGameOver) {
       return "You hit a skull bubble!";
-    } else if (isLevelFailed) {
-      return `Level ${level} failed! Needed ${requiredScore} points.`;
     }
     return "Time's up!";
   };
@@ -40,8 +33,6 @@ export function GameOverModal({
   const getGameOverColors = () => {
     if (isBlackBubbleGameOver) {
       return ['#ff4757', '#ff3742'];
-    } else if (isLevelFailed) {
-      return ['#ffa502', '#ff6348'];
     }
     return ['#667eea', '#764ba2'];
   };
@@ -49,16 +40,17 @@ export function GameOverModal({
   const getIcon = () => {
     if (isBlackBubbleGameOver) {
       return <Skull size={40} color="white" strokeWidth={2.5} />;
-    } else if (isLevelFailed) {
-      return <Target size={40} color="white" strokeWidth={2.5} />;
     }
     return <Clock size={40} color="white" strokeWidth={2.5} />;
   };
 
-  const getScoreProgress = () => {
-    if (isLevelFailed) {
-      const progress = (score / requiredScore) * 100;
-      return Math.round(progress);
+  const getSpeedModeAchievement = () => {
+    if (score >= 500) {
+      return (
+        <View style={styles.achievementBadge}>
+          <Text style={styles.achievementText}>🚀 Speed Mode Reached!</Text>
+        </View>
+      );
     }
     return null;
   };
@@ -77,26 +69,17 @@ export function GameOverModal({
               {getIcon()}
             </View>
 
-            {isNewHighScore && !isBlackBubbleGameOver && !isLevelFailed && (
+            {isNewHighScore && !isBlackBubbleGameOver && (
               <View style={styles.newHighScoreBadge}>
                 <Trophy size={20} color="#FFD700" />
                 <Text style={styles.newHighScoreText}>NEW HIGH SCORE!</Text>
               </View>
             )}
 
+            {getSpeedModeAchievement()}
+
             <Text style={styles.gameOverTitle}>Game Over</Text>
             <Text style={styles.gameOverMessage}>{getGameOverMessage()}</Text>
-            
-            {isLevelFailed && (
-              <View style={styles.progressInfo}>
-                <Text style={styles.progressText}>
-                  You scored {score} out of {requiredScore} required points
-                </Text>
-                <Text style={styles.progressPercentage}>
-                  ({getScoreProgress()}% complete)
-                </Text>
-              </View>
-            )}
             
             <View style={styles.scoreContainer}>
               <Text style={styles.scoreLabel}>Final Score</Text>
@@ -104,12 +87,12 @@ export function GameOverModal({
               
               <View style={styles.statsRow}>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>Level {level}</Text>
-                  <Text style={styles.statLabel}>Reached</Text>
-                </View>
-                <View style={styles.statItem}>
                   <Text style={styles.statValue}>{highScore}</Text>
                   <Text style={styles.statLabel}>High Score</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={styles.statValue}>+4s</Text>
+                  <Text style={styles.statLabel}>Per Bubble</Text>
                 </View>
               </View>
             </View>
@@ -176,7 +159,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginBottom: 16,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: 'rgba(255, 215, 0, 0.3)',
   },
@@ -185,6 +168,20 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
     marginLeft: 6,
+  },
+  achievementBadge: {
+    backgroundColor: 'rgba(255, 71, 87, 0.2)',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 71, 87, 0.3)',
+  },
+  achievementText: {
+    color: '#ff4757',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   gameOverTitle: {
     fontSize: 32,
@@ -200,24 +197,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     marginBottom: 16,
     textAlign: 'center',
-  },
-  progressInfo: {
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  progressText: {
-    fontSize: 14,
-    color: 'white',
-    textAlign: 'center',
-    marginBottom: 4,
-  },
-  progressPercentage: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '600',
   },
   scoreContainer: {
     alignItems: 'center',

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull, Timer, Target } from 'lucide-react-native';
+import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull, Timer, Zap } from 'lucide-react-native';
 import { useSettingsStore } from '@/hooks/useSettingsStore';
 
 export default function SettingsScreen() {
@@ -76,28 +76,27 @@ export default function SettingsScreen() {
             <View style={styles.infoCard}>
               <Text style={styles.infoText}>
                 🎯 Tap bubbles to pop them and earn points{'\n'}
-                ⏱️ Each level lasts 1 minute{'\n'}
-                📈 Meet score requirements to advance levels{'\n'}
-                💀 Avoid black skull bubbles after level 5 - they end the game!{'\n'}
-                🏆 Beat your high score and compete with yourself!
+                ⏰ Each bubble adds 4 seconds to your timer{'\n'}
+                🚀 Game speeds up after reaching 500 points{'\n'}
+                💀 Avoid black skull bubbles - they end the game!{'\n'}
+                🏆 Keep popping to extend your time and beat your high score!
               </Text>
             </View>
           </View>
 
-          {/* Level Requirements */}
+          {/* Speed Mode */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Level Requirements</Text>
-            <View style={styles.levelCard}>
-              <View style={styles.levelHeader}>
-                <Timer size={24} color="#4ECDC4" />
-                <Text style={styles.levelTitle}>Score Targets (1 min each)</Text>
+            <Text style={styles.sectionTitle}>Speed Mode</Text>
+            <View style={styles.speedCard}>
+              <View style={styles.speedHeader}>
+                <Zap size={24} color="#ff4757" />
+                <Text style={styles.speedTitle}>Activated at 500 Points</Text>
               </View>
-              <View style={styles.levelList}>
-                <Text style={styles.levelText}>Level 1: 500 points</Text>
-                <Text style={styles.levelText}>Level 2: 600 points</Text>
-                <Text style={styles.levelText}>Level 3: 700 points</Text>
-                <Text style={styles.levelText}>Level 4: 800 points</Text>
-                <Text style={styles.levelText}>Level 5+: +100 points each</Text>
+              <View style={styles.speedList}>
+                <Text style={styles.speedText}>⚡ Bubbles appear much faster</Text>
+                <Text style={styles.speedText}>⏱️ Bubbles disappear quicker</Text>
+                <Text style={styles.speedText}>💀 Black skull bubbles start appearing</Text>
+                <Text style={styles.speedText}>🎯 More bubbles on screen at once</Text>
               </View>
             </View>
           </View>
@@ -109,18 +108,22 @@ export default function SettingsScreen() {
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#FF6B9D' }]} />
                 <Text style={styles.bubblePoints}>10 pts</Text>
+                <Text style={styles.bubbleTime}>+4s</Text>
               </View>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#4ECDC4' }]} />
                 <Text style={styles.bubblePoints}>20 pts</Text>
+                <Text style={styles.bubbleTime}>+4s</Text>
               </View>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#45B7D1' }]} />
                 <Text style={styles.bubblePoints}>30 pts</Text>
+                <Text style={styles.bubbleTime}>+4s</Text>
               </View>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { backgroundColor: '#FFD700' }]} />
                 <Text style={styles.bubblePoints}>50 pts</Text>
+                <Text style={styles.bubbleTime}>+4s</Text>
               </View>
             </View>
           </View>
@@ -134,7 +137,7 @@ export default function SettingsScreen() {
                 <Text style={styles.dangerTitle}>Black Skull Bubbles</Text>
               </View>
               <Text style={styles.dangerText}>
-                Starting at level 5, dangerous black bubbles with skulls will appear. 
+                In Speed Mode (500+ points), dangerous black bubbles with skulls will appear. 
                 Touching these will immediately end your game! Stay alert and avoid them at all costs.
               </Text>
               <View style={styles.skullPreview}>
@@ -143,6 +146,24 @@ export default function SettingsScreen() {
                 </View>
                 <Text style={styles.dangerLabel}>GAME OVER!</Text>
               </View>
+            </View>
+          </View>
+
+          {/* Time Strategy */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Strategy Tips</Text>
+            <View style={styles.strategyCard}>
+              <View style={styles.strategyHeader}>
+                <Timer size={24} color="#4ECDC4" />
+                <Text style={styles.strategyTitle}>Time Management</Text>
+              </View>
+              <Text style={styles.strategyText}>
+                • Pop bubbles quickly to build up time reserves{'\n'}
+                • Higher value bubbles give the same time bonus{'\n'}
+                • In Speed Mode, prioritize survival over high scores{'\n'}
+                • Build up time before reaching 500 points{'\n'}
+                • Stay calm when skull bubbles appear
+              </Text>
             </View>
           </View>
 
@@ -233,28 +254,30 @@ const styles = StyleSheet.create({
     color: 'white',
     lineHeight: 22,
   },
-  levelCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  speedCard: {
+    backgroundColor: 'rgba(255, 71, 87, 0.1)',
     borderRadius: 16,
     padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 71, 87, 0.3)',
   },
-  levelHeader: {
+  speedHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  levelTitle: {
+  speedTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: 'white',
+    color: '#ff4757',
     marginLeft: 8,
   },
-  levelList: {
+  speedList: {
     gap: 8,
   },
-  levelText: {
+  speedText: {
     fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: 'white',
     fontWeight: '500',
   },
   bubbleValues: {
@@ -282,6 +305,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: 'white',
+    marginBottom: 2,
+  },
+  bubbleTime: {
+    fontSize: 10,
+    color: 'rgba(255, 255, 255, 0.7)',
   },
   dangerCard: {
     backgroundColor: 'rgba(255, 71, 87, 0.1)',
@@ -327,6 +355,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#ff4757',
+  },
+  strategyCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 16,
+    padding: 20,
+  },
+  strategyHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  strategyTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'white',
+    marginLeft: 8,
+  },
+  strategyText: {
+    fontSize: 14,
+    color: 'white',
+    lineHeight: 20,
   },
   resetButton: {
     flexDirection: 'row',
