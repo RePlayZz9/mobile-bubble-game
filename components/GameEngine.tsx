@@ -24,10 +24,10 @@ interface GameEngineProps {
 }
 
 const BUBBLE_COLORS = [
-  { color: '#FF6B9D', points: 10, baseSize: 45 },  // Reduced from 60 to 45
-  { color: '#4ECDC4', points: 20, baseSize: 38 },  // Reduced from 50 to 38
-  { color: '#45B7D1', points: 30, baseSize: 32 },  // Reduced from 42 to 32
-  { color: '#FFD700', points: 50, baseSize: 26 },  // Reduced from 35 to 26
+  { color: '#FF6B9D', points: 10, baseSize: 45 },  // Pink bubbles
+  { color: '#4ECDC4', points: 20, baseSize: 38 },  // Teal bubbles
+  { color: '#45B7D1', points: 30, baseSize: 32 },  // Blue bubbles
+  { color: '#FFD700', points: 50, baseSize: 26 },  // Gold bubbles
 ];
 
 // Bottom margin to prevent bubbles from appearing at the very bottom
@@ -58,9 +58,9 @@ export function GameEngine({
     const shouldCreateBlackBubble = Math.random() < blackBubbleChance;
     
     if (shouldCreateBlackBubble) {
-      // Black bubbles get smaller at higher speed levels
-      const baseSize = Math.max(35 - (speedLevel * 2), 25);
-      const size = baseSize + Math.random() * 8;
+      // Black bubbles maintain consistent size regardless of speed level
+      const baseSize = 35; // Fixed base size for black bubbles
+      const size = baseSize + Math.random() * 8; // Small random variation
       return {
         id: Math.random().toString(36).substr(2, 9),
         x: Math.random() * (screenWidth - size),
@@ -75,10 +75,9 @@ export function GameEngine({
     
     const colorData = BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)];
     
-    // Size gets smaller with each speed level
-    const sizeReduction = speedLevel * 1.5; // Reduce by 1.5px per speed level
-    const sizeVariation = Math.random() * 6 - 3; // ±3 pixels variation
-    const size = Math.max(colorData.baseSize - sizeReduction + sizeVariation, 15); // Minimum size of 15
+    // Maintain consistent bubble sizes regardless of speed level
+    const sizeVariation = Math.random() * 6 - 3; // ±3 pixels variation for natural look
+    const size = Math.max(colorData.baseSize + sizeVariation, 20); // Minimum size of 20
     
     return {
       id: Math.random().toString(36).substr(2, 9),
@@ -113,7 +112,7 @@ export function GameEngine({
     // Base interval: 1500ms, reduces by 200ms per speed level, minimum 300ms
     const bubbleInterval = Math.max(1500 - (speedLevel * 200), 300);
     
-    // More bubbles at higher speed levels
+    // More bubbles at higher speed levels for increased difficulty
     const maxBubbles = Math.min(5 + speedLevel, 12);
 
     const interval = setInterval(() => {
@@ -128,11 +127,11 @@ export function GameEngine({
     return () => clearInterval(interval);
   }, [gameState, speedLevel, generateBubble]);
 
-  // Auto-remove bubbles with progressive speed
+  // Auto-remove bubbles with progressive speed (faster disappearing = higher difficulty)
   useEffect(() => {
     if (gameState !== 'playing') return;
 
-    // Progressive bubble lifetime: gets shorter every 500 points
+    // Progressive bubble lifetime: gets shorter every 500 points for increased difficulty
     // Base lifetime: 2000ms, reduces by 250ms per speed level, minimum 800ms
     const bubbleLifetime = Math.max(2000 - (speedLevel * 250), 800);
 
