@@ -78,7 +78,7 @@ export default function SettingsScreen() {
                 🎯 Tap bubbles to pop them and earn points{'\n'}
                 ⏰ Each bubble adds 1 second to your timer{'\n'}
                 🚀 Every 500 points increases speed level{'\n'}
-                📉 Higher levels = smaller, faster bubbles{'\n'}
+                ⚡ Higher levels = faster spawning & disappearing{'\n'}
                 💀 Avoid black skull bubbles - they end the game!{'\n'}
                 🏆 Unlimited speed progression - how far can you go?
               </Text>
@@ -91,7 +91,7 @@ export default function SettingsScreen() {
             <View style={styles.speedCard}>
               <View style={styles.speedHeader}>
                 <Zap size={24} color="#ff4757" />
-                <Text style={styles.speedTitle}>Every 500 Points = Faster!</Text>
+                <Text style={styles.speedTitle}>Every 500 Points = Faster Action!</Text>
               </View>
               <View style={styles.speedList}>
                 <Text style={styles.speedText}>🎯 Level 0 (0-499): Normal Mode</Text>
@@ -102,14 +102,14 @@ export default function SettingsScreen() {
                 <Text style={styles.speedText}>💀 Level 5+ (2500+): Insane Mode</Text>
               </View>
               <Text style={styles.speedNote}>
-                Each level makes bubbles smaller, faster, and more challenging!
+                Each level increases bubble spawn rate, disappearing speed, and adds more bubbles on screen!
               </Text>
             </View>
           </View>
 
           {/* Bubble Values */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bubble Values & Progressive Sizes</Text>
+            <Text style={styles.sectionTitle}>Bubble Values & Consistent Sizes</Text>
             <View style={styles.bubbleValues}>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
@@ -119,7 +119,7 @@ export default function SettingsScreen() {
                   borderRadius: 18,
                 }]} />
                 <Text style={styles.bubblePoints}>10 pts</Text>
-                <Text style={styles.bubbleSize}>Largest</Text>
+                <Text style={styles.bubbleSize}>Pink</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
@@ -130,7 +130,7 @@ export default function SettingsScreen() {
                   borderRadius: 15,
                 }]} />
                 <Text style={styles.bubblePoints}>20 pts</Text>
-                <Text style={styles.bubbleSize}>Medium</Text>
+                <Text style={styles.bubbleSize}>Teal</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
@@ -141,7 +141,7 @@ export default function SettingsScreen() {
                   borderRadius: 13,
                 }]} />
                 <Text style={styles.bubblePoints}>30 pts</Text>
-                <Text style={styles.bubbleSize}>Small</Text>
+                <Text style={styles.bubbleSize}>Blue</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
               <View style={styles.bubbleValue}>
@@ -152,12 +152,12 @@ export default function SettingsScreen() {
                   borderRadius: 10.5,
                 }]} />
                 <Text style={styles.bubblePoints}>50 pts</Text>
-                <Text style={styles.bubbleSize}>Tiny</Text>
+                <Text style={styles.bubbleSize}>Gold</Text>
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
             </View>
-            <Text style={styles.difficultyNote}>
-              ⚠️ Bubbles get even smaller at higher speed levels!
+            <Text style={styles.consistencyNote}>
+              ✨ Bubble sizes stay consistent - only speed increases with levels!
             </Text>
           </View>
 
@@ -171,8 +171,8 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.dangerText}>
                 Starting at Speed Level 1 (500+ points), dangerous black bubbles appear. 
-                They get smaller, faster, and more frequent at higher speed levels. 
-                One touch = instant game over!
+                They spawn faster and disappear quicker at higher speed levels, but maintain 
+                consistent size. One touch = instant game over!
               </Text>
               <View style={styles.skullPreview}>
                 <View style={styles.blackBubblePreview}>
@@ -193,11 +193,11 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.strategyText}>
                 • Build up time in early levels before speed increases{'\n'}
-                • Focus on larger bubbles when speed gets intense{'\n'}
+                • Focus on higher-value bubbles when action gets intense{'\n'}
                 • Use both thumbs for better coverage at high speeds{'\n'}
                 • Stay calm - panic leads to skull bubble hits{'\n'}
-                • Each speed level requires new strategies{'\n'}
-                • Practice precision - bubbles shrink every 500 points{'\n'}
+                • Each speed level requires faster reflexes{'\n'}
+                • Practice precision - more bubbles appear simultaneously{'\n'}
                 • Plan your moves - higher levels are unforgiving!
               </Text>
             </View>
@@ -357,16 +357,16 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.7)',
   },
-  difficultyNote: {
+  consistencyNote: {
     fontSize: 12,
-    color: '#ff4757',
+    color: '#4ECDC4',
     textAlign: 'center',
     fontWeight: '600',
-    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    backgroundColor: 'rgba(78, 205, 196, 0.1)',
     padding: 12,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 71, 87, 0.3)',
+    borderColor: 'rgba(78, 205, 196, 0.3)',
   },
   dangerCard: {
     backgroundColor: 'rgba(255, 71, 87, 0.1)',
