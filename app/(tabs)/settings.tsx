@@ -109,7 +109,7 @@ export default function SettingsScreen() {
 
           {/* Bubble Values */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Bubble Values & Consistent Sizes</Text>
+            <Text style={styles.sectionTitle}>Bubble Values</Text>
             <View style={styles.bubbleValues}>
               <View style={styles.bubbleValue}>
                 <View style={[styles.bubblePreview, { 
