@@ -1,19 +1,38 @@
 import { Tabs } from 'expo-router';
 import { Play, Trophy, Settings } from 'lucide-react-native';
-import { usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-export default function TabLayout() {
-  const pathname = usePathname();
-  const [isGameActive, setIsGameActive] = useState(false);
+// Global game state for tab bar visibility
+let globalGameState: 'menu' | 'playing' | 'paused' | 'gameOver' = 'menu';
+let tabLayoutUpdateCallback: ((state: string) => void) | null = null;
 
-  // Listen for game state changes via URL parameters or global state
+// Export function to update game state from other components
+export const updateGlobalGameState = (state: 'menu' | 'playing' | 'paused' | 'gameOver') => {
+  globalGameState = state;
+  if (tabLayoutUpdateCallback) {
+    tabLayoutUpdateCallback(state);
+  }
+};
+
+export default function TabLayout() {
+  const [gameState, setGameState] = useState<'menu' | 'playing' | 'paused' | 'gameOver'>('menu');
+
   useEffect(() => {
-    // Check if we're on the main game tab and if game is active
-    // We'll use a simple approach by checking if we're on the index route
-    // and assume game is active when not in menu state
-    setIsGameActive(pathname === '/' || pathname === '/index');
-  }, [pathname]);
+    // Set up callback to receive game state updates
+    tabLayoutUpdateCallback = (state: string) => {
+      setGameState(state as 'menu' | 'playing' | 'paused' | 'gameOver');
+    };
+
+    // Initialize with current global state
+    setGameState(globalGameState);
+
+    return () => {
+      tabLayoutUpdateCallback = null;
+    };
+  }, []);
+
+  // Determine if tab bar should be visible
+  const shouldShowTabBar = gameState === 'menu' || gameState === 'gameOver';
 
   return (
     <Tabs
@@ -27,8 +46,8 @@ export default function TabLayout() {
           paddingBottom: 8,
           paddingTop: 8,
           height: 70,
-          // Hide tab bar during active gameplay
-          display: 'none', // We'll always hide it for now and show it conditionally
+          // Conditionally show/hide tab bar
+          display: shouldShowTabBar ? 'flex' : 'none',
         },
         tabBarLabelStyle: {
           fontSize: 12,
