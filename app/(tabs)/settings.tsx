@@ -168,8 +168,8 @@ export default function SettingsScreen() {
               </View>
               <Text style={styles.dangerText}>
                 Starting at Speed Level 1 (500+ points), dangerous black bubbles appear. 
-                They spawn faster and disappear quicker at higher speed levels, but maintain 
-                consistent size. One touch = instant game over!
+                They spawn faster and disappear quicker at higher speed levels. 
+                One touch = instant game over!
               </Text>
               <View style={styles.skullPreview}>
                 <View style={styles.blackBubblePreview}>
