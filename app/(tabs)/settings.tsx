@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Volume2, VolumeX, Vibrate, Info, Skull, Timer, Zap, Target } from 'lucide-react-native';
+import { Volume2, VolumeX, Vibrate, Info, Skull, Zap } from 'lucide-react-native';
 import { useSettingsStore } from '@/hooks/useSettingsStore';
 
 export default function SettingsScreen() {
@@ -176,26 +176,6 @@ export default function SettingsScreen() {
                 </View>
                 <Text style={styles.dangerLabel}>GAME OVER!</Text>
               </View>
-            </View>
-          </View>
-
-          {/* Strategy Tips */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Pro Strategy Tips</Text>
-            <View style={styles.strategyCard}>
-              <View style={styles.strategyHeader}>
-                <Target size={24} color="#4ECDC4" />
-                <Text style={styles.strategyTitle}>Master the Speed Levels</Text>
-              </View>
-              <Text style={styles.strategyText}>
-                • Build up time in early levels before speed increases{'\n'}
-                • Focus on higher-value bubbles when action gets intense{'\n'}
-                • Use both thumbs for better coverage at high speeds{'\n'}
-                • Stay calm - panic leads to skull bubble hits{'\n'}
-                • Each speed level requires faster reflexes{'\n'}
-                • Practice precision - more bubbles appear simultaneously{'\n'}
-                • Plan your moves - higher levels are unforgiving!
-              </Text>
             </View>
           </View>
 
@@ -390,27 +370,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#ff4757',
-  },
-  strategyCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 16,
-    padding: 20,
-  },
-  strategyHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  strategyTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    marginLeft: 8,
-  },
-  strategyText: {
-    fontSize: 14,
-    color: 'white',
-    lineHeight: 20,
   },
   appInfo: {
     flexDirection: 'row',
