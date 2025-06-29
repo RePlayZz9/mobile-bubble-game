@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Switch } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Volume2, VolumeX, Vibrate, Info, RefreshCw, Skull, Timer, Zap, Target } from 'lucide-react-native';
+import { Volume2, VolumeX, Vibrate, Info, Skull, Timer, Zap, Target } from 'lucide-react-native';
 import { useSettingsStore } from '@/hooks/useSettingsStore';
 
 export default function SettingsScreen() {
@@ -11,7 +11,6 @@ export default function SettingsScreen() {
     hapticsEnabled,
     setSoundEnabled,
     setHapticsEnabled,
-    resetSettings,
   } = useSettingsStore();
 
   return (
@@ -199,12 +198,6 @@ export default function SettingsScreen() {
               </Text>
             </View>
           </View>
-
-          {/* Reset Settings */}
-          <TouchableOpacity style={styles.resetButton} onPress={resetSettings}>
-            <RefreshCw size={20} color="#FF6B9D" />
-            <Text style={styles.resetButtonText}>Reset Settings</Text>
-          </TouchableOpacity>
 
           {/* App Info */}
           <View style={styles.appInfo}>
@@ -418,23 +411,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
     lineHeight: 20,
-  },
-  resetButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 107, 157, 0.2)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 32,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 107, 157, 0.3)',
-  },
-  resetButtonText: {
-    color: '#FF6B9D',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
   },
   appInfo: {
     flexDirection: 'row',
