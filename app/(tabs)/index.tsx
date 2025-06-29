@@ -19,7 +19,7 @@ export default function GameScreen() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [gameOverReason, setGameOverReason] = useState<'time' | 'blackBubble'>('time');
   const { addScore, getHighScore, getGamesPlayed } = useGameStore();
-  const { saveGame, clearSavedGame, hasSavedGame, getSavedGame } = useGameSave();
+  const { saveGameForHighScore, clearSavedGame } = useGameSave();
 
   // Update global game state whenever local state changes
   useEffect(() => {
@@ -40,25 +40,6 @@ export default function GameScreen() {
     triggerHaptic();
   };
 
-  const startNewGame = () => {
-    // Clear any saved game when starting fresh
-    clearSavedGame();
-    startGame();
-  };
-
-  const resumeSavedGame = () => {
-    const saved = getSavedGame();
-    if (saved) {
-      setScore(saved.score);
-      setTimeLeft(saved.timeLeft);
-      setGameState('playing');
-      setGameOverReason('time');
-      triggerHaptic();
-      // Clear the saved game since we're resuming it
-      clearSavedGame();
-    }
-  };
-
   const pauseGame = () => {
     setGameState('paused');
     triggerHaptic();
@@ -70,8 +51,12 @@ export default function GameScreen() {
   };
 
   const saveAndExit = async () => {
-    // Save current game state
-    await saveGame(score, timeLeft);
+    // Save current game state for high score tracking
+    const savedState = await saveGameForHighScore(score, timeLeft);
+    if (savedState) {
+      // Add the saved score to high scores
+      addScore(savedState.score);
+    }
     setGameState('menu');
     triggerHaptic();
   };
@@ -80,7 +65,7 @@ export default function GameScreen() {
     setGameState('gameOver');
     setGameOverReason(reason);
     addScore(score);
-    // Clear any saved game since the game ended
+    // Clear any saved game since the game ended naturally
     clearSavedGame();
     triggerHaptic();
   };
@@ -159,31 +144,6 @@ export default function GameScreen() {
             <Text style={styles.title}>Bubble Pop</Text>
             <Text style={styles.subtitle}>{getSpeedDescription()}</Text>
             
-            {/* Saved Game Section */}
-            {hasSavedGame() && (
-              <View style={styles.savedGameContainer}>
-                <Text style={styles.savedGameTitle}>📁 Continue Saved Game</Text>
-                <View style={styles.savedGameInfo}>
-                  <Text style={styles.savedGameText}>
-                    Score: {getSavedGame()?.score} • Time: {Math.floor((getSavedGame()?.timeLeft || 0) / 60)}:{((getSavedGame()?.timeLeft || 0) % 60).toString().padStart(2, '0')}
-                  </Text>
-                  <Text style={styles.savedGameText}>
-                    Speed Level: {getSavedGame()?.speedLevel}
-                  </Text>
-                </View>
-                <TouchableOpacity style={styles.resumeButton} onPress={resumeSavedGame}>
-                  <LinearGradient
-                    colors={['#4ECDC4', '#44A08D']}
-                    style={styles.resumeButtonGradient}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                  >
-                    <Text style={styles.resumeButtonText}>Resume Game</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </View>
-            )}
-            
             <View style={styles.rulesContainer}>
               <Text style={styles.rulesTitle}>Progressive Speed System:</Text>
               <Text style={styles.ruleText}>🎯 Pop bubbles to earn points (+1 second each)</Text>
@@ -191,7 +151,7 @@ export default function GameScreen() {
               <Text style={styles.ruleText}>⚡ Higher levels = smaller, faster bubbles</Text>
               <Text style={styles.ruleText}>💀 Skulls appear at 500+ points</Text>
               <Text style={styles.ruleText}>🔥 Unlimited speed progression!</Text>
-              <Text style={styles.ruleText}>💾 Save progress anytime via pause menu</Text>
+              <Text style={styles.ruleText}>💾 Save your score anytime via pause menu</Text>
             </View>
 
             <View style={styles.speedLevels}>
@@ -215,16 +175,14 @@ export default function GameScreen() {
               </View>
             </View>
 
-            <TouchableOpacity style={styles.playButton} onPress={startNewGame}>
+            <TouchableOpacity style={styles.playButton} onPress={startGame}>
               <LinearGradient
                 colors={['#FF6B9D', '#C44569']}
                 style={styles.playButtonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
               >
-                <Text style={styles.playButtonText}>
-                  {hasSavedGame() ? 'Start New Game' : 'Start Game'}
-                </Text>
+                <Text style={styles.playButtonText}>Start Game</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -272,7 +230,7 @@ export default function GameScreen() {
           highScore={getHighScore()}
           reason={gameOverReason}
           speedLevel={speedLevel}
-          onPlayAgain={startNewGame}
+          onPlayAgain={startGame}
           onMenu={resetGame}
         />
       </SafeAreaView>
@@ -321,48 +279,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
     marginBottom: 24,
-  },
-  savedGameContainer: {
-    backgroundColor: 'rgba(76, 217, 100, 0.15)',
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(76, 217, 100, 0.3)',
-    width: '100%',
-  },
-  savedGameTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#4CD964',
-    marginBottom: 12,
-  },
-  savedGameInfo: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  savedGameText: {
-    fontSize: 14,
-    color: 'white',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  resumeButton: {
-    width: 160,
-    height: 50,
-    borderRadius: 25,
-    overflow: 'hidden',
-  },
-  resumeButtonGradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  resumeButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
   },
   rulesContainer: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',

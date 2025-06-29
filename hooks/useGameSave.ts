@@ -40,7 +40,7 @@ export function useGameSave() {
     }
   };
 
-  const saveGame = async (score: number, timeLeft: number) => {
+  const saveGameForHighScore = async (score: number, timeLeft: number) => {
     try {
       const gameState: SavedGameState = {
         score,
@@ -51,8 +51,12 @@ export function useGameSave() {
       
       await AsyncStorage.setItem(SAVED_GAME_KEY, JSON.stringify(gameState));
       setSavedGame(gameState);
+      
+      // Return the saved game state for immediate high score processing
+      return gameState;
     } catch (error) {
-      console.error('Failed to save game:', error);
+      console.error('Failed to save game for high score:', error);
+      return null;
     }
   };
 
@@ -74,7 +78,7 @@ export function useGameSave() {
   };
 
   return {
-    saveGame,
+    saveGameForHighScore,
     clearSavedGame,
     hasSavedGame,
     getSavedGame,

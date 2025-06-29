@@ -137,7 +137,7 @@ export function PauseModal({
                   end={{ x: 1, y: 1 }}
                 >
                   <Save size={20} color="white" />
-                  <Text style={styles.buttonText}>Save & Exit</Text>
+                  <Text style={styles.buttonText}>Save Score & Exit</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
@@ -151,7 +151,7 @@ export function PauseModal({
 
             {/* Warning for Main Menu */}
             <Text style={styles.warningText}>
-              💾 Save your progress to continue later, or exit without saving to lose progress
+              💾 Save your current score for high score tracking, or exit without saving
             </Text>
           </LinearGradient>
         </View>
