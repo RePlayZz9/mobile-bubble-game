@@ -156,9 +156,6 @@ export default function SettingsScreen() {
                 <Text style={styles.bubbleTime}>+1s</Text>
               </View>
             </View>
-            <Text style={styles.consistencyNote}>
-              ✨ Bubble sizes stay consistent - only speed increases with levels!
-            </Text>
           </View>
 
           {/* Danger Zone */}
@@ -329,7 +326,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 16,
     padding: 20,
-    marginBottom: 12,
   },
   bubbleValue: {
     alignItems: 'center',
@@ -356,17 +352,6 @@ const styles = StyleSheet.create({
   bubbleTime: {
     fontSize: 10,
     color: 'rgba(255, 255, 255, 0.7)',
-  },
-  consistencyNote: {
-    fontSize: 12,
-    color: '#4ECDC4',
-    textAlign: 'center',
-    fontWeight: '600',
-    backgroundColor: 'rgba(78, 205, 196, 0.1)',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(78, 205, 196, 0.3)',
   },
   dangerCard: {
     backgroundColor: 'rgba(255, 71, 87, 0.1)',
