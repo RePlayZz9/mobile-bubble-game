@@ -30,6 +30,9 @@ const BUBBLE_COLORS = [
   { color: '#FFD700', points: 50, baseSize: 26 },  // Reduced from 35 to 26
 ];
 
+// Bottom margin to prevent bubbles from appearing at the very bottom
+const BOTTOM_MARGIN = 80; // Pixels from bottom where bubbles won't spawn
+
 export function GameEngine({ 
   gameState, 
   score,
@@ -45,6 +48,9 @@ export function GameEngine({
   const speedLevel = getSpeedLevel();
   const isSpeedMode = speedLevel > 0;
 
+  // Calculate effective play area (excluding bottom margin)
+  const effectiveHeight = screenHeight - BOTTOM_MARGIN;
+
   const generateBubble = useCallback((): BubbleData => {
     // Black bubbles appear starting from speed level 1 (500+ points)
     // Chance increases with each speed level
@@ -58,7 +64,7 @@ export function GameEngine({
       return {
         id: Math.random().toString(36).substr(2, 9),
         x: Math.random() * (screenWidth - size),
-        y: Math.random() * (screenHeight - size),
+        y: Math.random() * (effectiveHeight - size), // Use effective height
         color: '#1a1a1a',
         points: 0,
         size: size,
@@ -77,14 +83,14 @@ export function GameEngine({
     return {
       id: Math.random().toString(36).substr(2, 9),
       x: Math.random() * (screenWidth - size),
-      y: Math.random() * (screenHeight - size),
+      y: Math.random() * (effectiveHeight - size), // Use effective height
       color: colorData.color,
       points: colorData.points,
       size: size,
       type: 'normal',
       createdAt: Date.now(),
     };
-  }, [screenWidth, screenHeight, speedLevel, isSpeedMode]);
+  }, [screenWidth, effectiveHeight, speedLevel, isSpeedMode]);
 
   const removeBubble = useCallback((id: string) => {
     setBubbles(prev => prev.filter(bubble => bubble.id !== id));
@@ -155,7 +161,7 @@ export function GameEngine({
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height: effectiveHeight }]}>
       {bubbles.map(bubble => (
         bubble.type === 'black' ? (
           <BlackBubble
