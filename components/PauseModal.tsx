@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Play, Chrome as Home, Pause, Clock, Star, Zap } from 'lucide-react-native';
+import { Play, Chrome as Home, Pause, Clock, Star, Zap, Save } from 'lucide-react-native';
 
 interface PauseModalProps {
   visible: boolean;
@@ -10,6 +10,7 @@ interface PauseModalProps {
   speedLevel: number;
   onResume: () => void;
   onMainMenu: () => void;
+  onSaveAndExit: () => void;
 }
 
 export function PauseModal({ 
@@ -18,7 +19,8 @@ export function PauseModal({
   timeLeft, 
   speedLevel,
   onResume, 
-  onMainMenu 
+  onMainMenu,
+  onSaveAndExit
 }: PauseModalProps) {
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
@@ -127,17 +129,29 @@ export function PauseModal({
                 </LinearGradient>
               </TouchableOpacity>
 
+              <TouchableOpacity style={styles.saveButton} onPress={onSaveAndExit}>
+                <LinearGradient
+                  colors={['#FF6B9D', '#C44569']}
+                  style={styles.buttonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Save size={20} color="white" />
+                  <Text style={styles.buttonText}>Save & Exit</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
               <TouchableOpacity style={styles.menuButton} onPress={onMainMenu}>
                 <View style={styles.menuButtonContent}>
                   <Home size={20} color="white" />
-                  <Text style={styles.menuButtonText}>Main Menu</Text>
+                  <Text style={styles.menuButtonText}>Exit Without Saving</Text>
                 </View>
               </TouchableOpacity>
             </View>
 
             {/* Warning for Main Menu */}
             <Text style={styles.warningText}>
-              ⚠️ Returning to main menu will end your current game
+              💾 Save your progress to continue later, or exit without saving to lose progress
             </Text>
           </LinearGradient>
         </View>
@@ -270,6 +284,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   resumeButton: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  saveButton: {
     borderRadius: 16,
     overflow: 'hidden',
   },
