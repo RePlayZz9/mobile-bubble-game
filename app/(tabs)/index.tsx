@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Platform } from '
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
+import { useFocusEffect } from '@react-navigation/native';
 import { GameEngine } from '@/components/GameEngine';
 import { GameOverModal } from '@/components/GameOverModal';
 import { PauseModal } from '@/components/PauseModal';
@@ -17,6 +18,16 @@ export default function GameScreen() {
   const [timeLeft, setTimeLeft] = useState(60);
   const [gameOverReason, setGameOverReason] = useState<'time' | 'blackBubble'>('time');
   const { addScore, getHighScore, getGamesPlayed } = useGameStore();
+
+  // Hide tab bar when game is active
+  useFocusEffect(
+    useCallback(() => {
+      // This will trigger a re-render of the tab layout
+      return () => {
+        // Cleanup when leaving the screen
+      };
+    }, [gameState])
+  );
 
   const triggerHaptic = useCallback(() => {
     if (Platform.OS !== 'web') {
@@ -100,11 +111,17 @@ export default function GameScreen() {
     return `Insane Mode x${speedLevel}! Impossible speed!`;
   };
 
+  // Dynamic styles based on game state
+  const containerStyle = [
+    styles.container,
+    gameState !== 'menu' && styles.gameActiveContainer
+  ];
+
   if (gameState === 'menu') {
     return (
       <LinearGradient
         colors={['#667eea', '#764ba2', '#f093fb']}
-        style={styles.container}
+        style={containerStyle}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
@@ -162,11 +179,11 @@ export default function GameScreen() {
   return (
     <LinearGradient
       colors={['#667eea', '#764ba2', '#f093fb']}
-      style={styles.container}
+      style={containerStyle}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.gameActiveSafeArea}>
         <GameHeader 
           score={score}
           timeLeft={timeLeft}
@@ -179,7 +196,7 @@ export default function GameScreen() {
           onBubblePop={onBubblePop}
           onBlackBubblePop={onBlackBubblePop}
           screenWidth={width}
-          screenHeight={height - 200}
+          screenHeight={height - 120} // Adjusted for full screen
         />
 
         <PauseModal
@@ -209,8 +226,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  gameActiveContainer: {
+    // Full screen when game is active
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1000,
+  },
   safeArea: {
     flex: 1,
+  },
+  gameActiveSafeArea: {
+    flex: 1,
+    paddingBottom: 0, // Remove bottom padding when game is active
   },
   menuContainer: {
     flex: 1,
